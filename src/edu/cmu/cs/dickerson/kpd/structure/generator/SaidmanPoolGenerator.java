@@ -48,6 +48,60 @@ public class SaidmanPoolGenerator extends PoolGenerator {
 	protected double Pr_DONOR_TYPE_A = 0.3373;
 	protected double Pr_DONOR_TYPE_B = 0.1428;
 	
+	//Probabilities/values for features required by LKDPI
+	//These will be provided by the exchange usually, but for now its bogus
+
+	//Booleans (no source, total BS)
+	protected double Pr_isAfricanAmerican = 0.2;
+	protected double Pr_isCigaretteUser = .1;
+	protected double Pr_isPatientMale = .5;
+	protected double Pr_isDonorMale = .5;
+	protected double Pr_isRelated = .8; //only applies to VertexPair
+	
+	//Doubles/Integers (all probabilities are BS)
+	
+	//eGFR
+	protected double eGFR_HIGH = 90; //From https://medlineplus.gov/ency/article/007305.htm
+	protected double eGFR_MED = 60;
+	protected double eGFR_LOW = 15;
+	
+	protected double Pr_eGFR_HIGH = .3;
+	protected double Pr_eGFR_MED = .4;
+	protected double Pr_eGFR_LOW = .3;
+	
+	//BMI (LOW is healthy, MED is overweight, and HIGH is obese)
+	protected double BMI_HIGH = 35; //From https://www.cdc.gov/nchs/data/nhanes/databriefs/adultweight.pdf
+	protected double BMI_MED = 27;
+	protected double BMI_LOW = 22;
+	
+	protected double Pr_BMI_HIGH = .3;
+	protected double Pr_BMI_MED = .5;
+	protected double Pr_BMI_LOW = .2;
+	
+	//Weight (same convention as BMI, same source, and same probabilities)
+	protected double weight_HIGH = 200;
+	protected double weight_MED = 170;
+	protected double weight_LOW = 130;
+	
+	//Age (no source, total BS)
+	protected int patientAge_HIGH = 70;
+	protected int patientAge_MED = 50;
+	protected int patientAge_LOW = 30;
+	
+	protected double Pr_patientAge_HIGH = .4;
+	protected double Pr_patientAge_MED = .5;
+	protected double Pr_patientAge_LOW = .1;
+	
+	//Systolic blood pressure (LOW is healthy)
+	protected int SBP_HIGH = 160; //From http://www.mayoclinic.org/diseases-conditions/high-blood-pressure/in-depth/blood-pressure/art-20050982
+	protected int SBP_MED = 140;
+	protected int SBP_LOW = 120;
+	
+	protected double Pr_SBP_HIGH = .3;
+	protected double Pr_SBP_MED = .4;
+	protected double Pr_SBP_LOW = .3;
+	
+	
 	// Current unused vertex ID for optimization graphs
 	private int currentVertexID;
 
@@ -80,6 +134,51 @@ public class SaidmanPoolGenerator extends PoolGenerator {
 		if (r <= Pr_DONOR_TYPE_O + Pr_DONOR_TYPE_A) { return BloodType.A; }
 		if (r <= Pr_DONOR_TYPE_O + Pr_DONOR_TYPE_A + Pr_DONOR_TYPE_B) { return BloodType.B; }
 		return BloodType.AB;
+	}
+	
+	private double draweGFR() {
+		double r = random.nextDouble();
+
+		if (r <= Pr_eGFR_LOW) { return eGFR_LOW; }
+		if (r <= Pr_eGFR_LOW + Pr_eGFR_MED) { return eGFR_MED; }
+		if (r <= Pr_eGFR_LOW + Pr_eGFR_MED + Pr_eGFR_HIGH) { return eGFR_HIGH; }
+		return 0;
+	}
+	
+	private double drawBMI() {
+		double r = random.nextDouble();
+
+		if (r <= Pr_BMI_LOW) { return BMI_LOW; }
+		if (r <= Pr_BMI_LOW + Pr_BMI_MED) { return BMI_MED; }
+		if (r <= Pr_BMI_LOW + Pr_BMI_MED + Pr_BMI_HIGH) { return BMI_HIGH; }
+		return 0;
+	}
+	
+	private double drawWeight() {
+		double r = random.nextDouble();
+
+		if (r <= Pr_BMI_LOW) { return weight_LOW; }
+		if (r <= Pr_BMI_LOW + Pr_BMI_MED) { return weight_MED; }
+		if (r <= Pr_BMI_LOW + Pr_BMI_MED + Pr_BMI_HIGH) { return weight_HIGH; }
+		return 0;
+	}
+	
+	private int drawPatientAge() {
+		double r = random.nextDouble();
+
+		if (r <= Pr_patientAge_LOW) { return patientAge_LOW; }
+		if (r <= Pr_patientAge_LOW + Pr_patientAge_MED) { return patientAge_MED; }
+		if (r <= Pr_patientAge_LOW + Pr_patientAge_MED + Pr_patientAge_HIGH) { return patientAge_HIGH; }
+		return 0;
+	}
+	
+	private int drawSBP() {
+		double r = random.nextDouble();
+
+		if (r <= Pr_SBP_LOW) { return SBP_LOW; }
+		if (r <= Pr_SBP_LOW + Pr_SBP_MED) { return SBP_MED; }
+		if (r <= Pr_SBP_LOW + Pr_SBP_MED + Pr_SBP_HIGH) { return SBP_HIGH; }
+		return 0;
 	}
 	
 	/**
