@@ -51,7 +51,9 @@ public class VertexPair extends Vertex {
 	private final int[] patientHLA_B;
 	private final int[] patientHLA_DR;
 	
-	public VertexPair(int ID, BloodType bloodTypePatient, BloodType bloodTypeDonor, boolean isWifePatient, double patientCPRA, boolean isCompatible, double eGFR, double patientBMI, double patientWeight, double donorWeight, boolean isAfricanAmerican, boolean isCigarreteUser, boolean isPatientMale, boolean isDonorMale, boolean isRelated, int patientAge, int patientSBP, int[] donorHLA_B, int[] donorHLA_DR, int[] patientHLA_B, int[] patientHLA_DR) {
+	public Object[] features;
+	
+	public VertexPair(int ID, BloodType bloodTypePatient, BloodType bloodTypeDonor, boolean isWifePatient, double patientCPRA, boolean isCompatible, double eGFR, double patientBMI, double patientWeight, double donorWeight, boolean isAfricanAmerican, boolean isCigaretteUser, boolean isPatientMale, boolean isDonorMale, boolean isRelated, int patientAge, int patientSBP, int[] donorHLA_B, int[] donorHLA_DR, int[] patientHLA_B, int[] patientHLA_DR) {
 		super(ID);
 		this.bloodTypePatient = bloodTypePatient;
 		this.bloodTypeDonor = bloodTypeDonor;
@@ -63,7 +65,7 @@ public class VertexPair extends Vertex {
 		this.patientWeight = patientWeight;
 		this.donorWeight = donorWeight;
 		this.isAfricanAmerican = isAfricanAmerican;
-		this.isCigaretteUser = isCigarreteUser;
+		this.isCigaretteUser = isCigaretteUser;
 		this.isPatientMale = isPatientMale;
 		this.isDonorMale = isDonorMale;
 		this.isRelated = isRelated;
@@ -73,6 +75,7 @@ public class VertexPair extends Vertex {
 		this.donorHLA_DR = donorHLA_DR;
 		this.patientHLA_B = patientHLA_B;
 		this.patientHLA_DR = patientHLA_DR;
+		features = new Object[] {bloodTypePatient, bloodTypeDonor, isWifePatient, patientCPRA, isCompatible, eGFR, patientBMI, patientWeight, donorWeight, isAfricanAmerican, isCigaretteUser, isPatientMale, isDonorMale, patientAge, patientSBP, donorHLA_B, donorHLA_DR, patientHLA_B, patientHLA_DR};
 	}
 	
 	public int getBMismatches(){
