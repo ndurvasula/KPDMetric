@@ -63,7 +63,7 @@ public class SaidmanPoolGenerator extends PoolGenerator {
 	//eGFR
 	protected double eGFR_HIGH = 90; //From https://medlineplus.gov/ency/article/007305.htm
 	protected double eGFR_MED = 60;
-	protected double eGFR_LOW = 15;
+	protected double eGFR_LOW = 30;
 	
 	protected double Pr_eGFR_HIGH = .3;
 	protected double Pr_eGFR_MED = .4;
@@ -205,6 +205,26 @@ public class SaidmanPoolGenerator extends PoolGenerator {
 	private boolean isPositiveCrossmatch(double pr_PraIncompatibility) {
 		return random.nextDouble() <= pr_PraIncompatibility;
 	}
+	
+	private boolean isAfricanAmerican(){
+		return random.nextDouble() <= Pr_isAfricanAmerican;
+	}
+	
+	private boolean isCigaretteUser(){
+		return random.nextDouble() <= Pr_isCigaretteUser;
+	}
+	
+	private boolean isDonorMale(){
+		return random.nextDouble() <= Pr_isDonorMale;
+	}
+	
+	private boolean isPatientMale(){
+		return random.nextDouble() <= Pr_isPatientMale;
+	}
+	
+	private boolean isRelated(){
+		return random.nextDouble() <= Pr_isRelated;
+	}
 
 	/**
 	 * Randomly generates CPRA (Calculated Panel Reactive Antibody) for a
@@ -231,6 +251,28 @@ public class SaidmanPoolGenerator extends PoolGenerator {
 			return 1.0 - Pr_SPOUSAL_PRA_COMPATIBILITY*(1.0 - pr_PraIncompatiblity);
 		}
 	}	
+	
+	private int[] drawHLA_B(){
+		int[] res = new int[2];
+		res[0] = random.nextInt(65);
+		while(true){
+			res[1] = random.nextInt(65);
+			if(res[1] != res[0])
+				break;
+		}
+		return res;
+	}
+	
+	private int[] drawHLA_DR(){
+		int[] res = new int[2];
+		res[0] = random.nextInt(21);
+		while(true){
+			res[1] = random.nextInt(21);
+			if(res[1] != res[0])
+				break;
+		}
+		return res;
+	}
 
 
 	/**
@@ -238,20 +280,38 @@ public class SaidmanPoolGenerator extends PoolGenerator {
 	 * @param ID unique identifier for the vertex
 	 * @return a patient-donor pair KPDVertexPair
 	 */
-	private VertexPair generatePair(int ID) {
+	public VertexPair generatePair(int ID) {
 
 		// Draw blood types for patient and donor, along with spousal details and probability of PositiveXM
 		BloodType bloodTypePatient = drawPatientBloodType();
 		BloodType bloodTypeDonor = drawDonorBloodType();
 		boolean isWifePatient = isPatientFemale() && isDonorSpouse();
 		double patientCPRA = generatePraIncompatibility(isWifePatient);
+		double eGFR = draweGFR();
+		double bmi = drawBMI();
+		double pweight = drawWeight();
+		double dweight = drawWeight();
+		boolean iaa = isAfricanAmerican();
+		boolean icu = isCigaretteUser();
+		boolean idm = isDonorMale();
+		boolean ipm = isPatientMale();
+		boolean ir = isRelated();
+		int age = drawPatientAge();
+		int sbp = drawSBP();
+		int[] pHLA_B = drawHLA_B();
+		int[] dHLA_B = drawHLA_B();
+		int[] pHLA_DR = drawHLA_DR();
+		int[] dHLA_DR = drawHLA_DR();
+		
 
 		// Can this donor donate to his or her patient?
 		boolean compatible = bloodTypeDonor.canGiveTo(bloodTypePatient)    // Donor must be blood type compatible with patient
 				&& !isPositiveCrossmatch(patientCPRA);   // Crossmatch must be negative
 
-		return new VertexPair(ID, bloodTypePatient, bloodTypeDonor, isWifePatient, patientCPRA, compatible);
+		return new VertexPair(ID, bloodTypePatient, bloodTypeDonor, isWifePatient, patientCPRA, compatible, eGFR, bmi, pweight, dweight, iaa, icu, ipm, idm, ir, age, sbp, dHLA_B, dHLA_DR, pHLA_B, pHLA_DR);
 	}
+	
+	
 
 	/**
 	 * Random rolls an altruistic donor (donor with no attached patient)
@@ -263,7 +323,7 @@ public class SaidmanPoolGenerator extends PoolGenerator {
 		// Draw blood type for the altruist
 		BloodType bloodTypeAltruist = drawDonorBloodType();
 
-		return new VertexAltruist(ID, bloodTypeAltruist);
+		return new VertexAltruist(ID, bloodTypeAltruist, drawWeight(), isDonorMale(), drawHLA_B(), drawHLA_DR());
 	}
 
 
