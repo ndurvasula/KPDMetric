@@ -6,6 +6,7 @@ import edu.cmu.cs.dickerson.kpd.structure.VertexPair;
 import edu.cmu.cs.dickerson.kpd.structure.types.BloodType;
 
 public class Tools {
+	static public final double[] D = {1,1,1,1,1,125,50,300,300,1,1,1,1,100,200,1,1,1,1};
 	public static double eUtility(double[][] data, int l){
 		ArrayList<Integer> freq = new ArrayList<Integer>();
 		ArrayList<Double> value = new ArrayList<Double>();
@@ -36,18 +37,19 @@ public class Tools {
 	 }
 	
 	//from my paper, assuming that we have a uniform distribution (this is also a bound that I proved)
-	public static int Samples(double alpha, double[] D, double[] c){
+	public static int Samples(double alpha, double[] c){
 		double cprod = 1;
 		double dprod = 1;
 		for(int i = 0; i < D.length; i++){
 			cprod *= c[i];
 			dprod *= D[i];
 		}
-
+		System.out.println(cprod);
+		System.out.println(dprod);
 		return (int)Math.ceil(Math.log(1-alpha)/Math.log(1-(Math.pow(Math.PI,D.length/2)*cprod)/(gamma(D.length/2+1)*dprod)));
 	}
 	
-	public double dist(VertexPair a, VertexPair b, double[] D){
+	public static double dist(VertexPair a, VertexPair b){
 		double sum = 0;
 		for(int i = 0; i < D.length; i++){
 			Object ai = a.features[i];
@@ -62,6 +64,9 @@ public class Tools {
 						sum += .5;
 					}
 				}
+			}
+			else if(ai instanceof Integer){
+				sum += Math.pow(((Integer)ai-(Integer)bi)/D[i], 2);
 			}
 			else{
 				sum += Math.pow(((Double)ai-(Double)bi)/D[i], 2);

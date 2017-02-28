@@ -13,8 +13,8 @@ public class Driver {
 	
 	
 	//Probability that someone will fall into an epsilon ellipsoid
-	static final double ALPHA = .97;
-	static final double[] D = {1,1,1,1,1,125,50,300,300,1,1,1,1,100,200,1,1,1,1};
+	static final double ALPHA = .997;
+	
 	static final double epsilon = .1;
 	static final double[] c = {};
 	static final int TRAJECTORIES = 200;
