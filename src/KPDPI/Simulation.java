@@ -125,6 +125,11 @@ public class Simulation {
 			int t = 0;
 
 			while (true) {
+				if(t == 500){
+					ret[i][0] = Integer.MAX_VALUE;
+					ret[i][1] = Integer.MAX_VALUE;
+					break;
+				}
 				boolean stop = false;
 				// Add new vertices to the pool
 				int pairs = m.draw().intValue();
