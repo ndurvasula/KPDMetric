@@ -103,7 +103,7 @@ public class SaidmanPoolGenerator extends PoolGenerator {
 	
 	
 	// Current unused vertex ID for optimization graphs
-	private int currentVertexID;
+	public int currentVertexID;
 
 	public SaidmanPoolGenerator(Random random) {
 		super(random);
@@ -114,7 +114,7 @@ public class SaidmanPoolGenerator extends PoolGenerator {
 	 * Draws a random patient's blood type from the US distribution 
 	 * @return BloodType.{O,A,B,AB}
 	 */
-	private BloodType drawPatientBloodType() {
+	public BloodType drawPatientBloodType() {
 		double r = random.nextDouble();
 
 		if (r <= Pr_PATIENT_TYPE_O) { return BloodType.O; }
@@ -127,7 +127,7 @@ public class SaidmanPoolGenerator extends PoolGenerator {
 	 * Draws a random donor's blood type from the US distribution 
 	 * @return BloodType.{O,A,B,AB}
 	 */
-	private BloodType drawDonorBloodType() {
+	public BloodType drawDonorBloodType() {
 		double r = random.nextDouble();
 
 		if (r <= Pr_DONOR_TYPE_O) { return BloodType.O; }
@@ -136,7 +136,7 @@ public class SaidmanPoolGenerator extends PoolGenerator {
 		return BloodType.AB;
 	}
 	
-	private double draweGFR() {
+	public double draweGFR() {
 		double r = random.nextDouble();
 
 		if (r <= Pr_eGFR_LOW) { return eGFR_LOW; }
@@ -145,7 +145,7 @@ public class SaidmanPoolGenerator extends PoolGenerator {
 		return 0;
 	}
 	
-	private double drawBMI() {
+	public double drawBMI() {
 		double r = random.nextDouble();
 
 		if (r <= Pr_BMI_LOW) { return BMI_LOW; }
@@ -154,7 +154,7 @@ public class SaidmanPoolGenerator extends PoolGenerator {
 		return 0;
 	}
 	
-	private double drawWeight() {
+	public double drawWeight() {
 		double r = random.nextDouble();
 
 		if (r <= Pr_BMI_LOW) { return weight_LOW; }
@@ -163,7 +163,7 @@ public class SaidmanPoolGenerator extends PoolGenerator {
 		return 0;
 	}
 	
-	private int drawPatientAge() {
+	public int drawPatientAge() {
 		double r = random.nextDouble();
 
 		if (r <= Pr_patientAge_LOW) { return patientAge_LOW; }
@@ -172,7 +172,7 @@ public class SaidmanPoolGenerator extends PoolGenerator {
 		return 0;
 	}
 	
-	private int drawSBP() {
+	public int drawSBP() {
 		double r = random.nextDouble();
 
 		if (r <= Pr_SBP_LOW) { return SBP_LOW; }
@@ -185,7 +185,7 @@ public class SaidmanPoolGenerator extends PoolGenerator {
 	 * Draws a random gender from the US waitlist distribution
 	 * @return true if patient is female, false otherwise
 	 */
-	private boolean isPatientFemale() {
+	public boolean isPatientFemale() {
 		return random.nextDouble() <= Pr_FEMALE;
 	}
 
@@ -193,7 +193,7 @@ public class SaidmanPoolGenerator extends PoolGenerator {
 	 * Draws a random spousal relationship between donor and patient
 	 * @return true if willing donor is patient's spouse, false otherwise
 	 */
-	private boolean isDonorSpouse() {
+	public boolean isDonorSpouse() {
 		return random.nextDouble() <= Pr_SPOUSAL_DONOR;
 	}
 
@@ -202,27 +202,27 @@ public class SaidmanPoolGenerator extends PoolGenerator {
 	 * @param pr_PraIncompatibility probability of a PRA-based incompatibility
 	 * @return true is simulated positive crossmatch, false otherwise
 	 */
-	private boolean isPositiveCrossmatch(double pr_PraIncompatibility) {
+	public boolean isPositiveCrossmatch(double pr_PraIncompatibility) {
 		return random.nextDouble() <= pr_PraIncompatibility;
 	}
 	
-	private boolean isAfricanAmerican(){
+	public boolean isAfricanAmerican(){
 		return random.nextDouble() <= Pr_isAfricanAmerican;
 	}
 	
-	private boolean isCigaretteUser(){
+	public boolean isCigaretteUser(){
 		return random.nextDouble() <= Pr_isCigaretteUser;
 	}
 	
-	private boolean isDonorMale(){
+	public boolean isDonorMale(){
 		return random.nextDouble() <= Pr_isDonorMale;
 	}
 	
-	private boolean isPatientMale(){
+	public boolean isPatientMale(){
 		return random.nextDouble() <= Pr_isPatientMale;
 	}
 	
-	private boolean isRelated(){
+	public boolean isRelated(){
 		return random.nextDouble() <= Pr_isRelated;
 	}
 
@@ -233,7 +233,7 @@ public class SaidmanPoolGenerator extends PoolGenerator {
 	 * @param isWifePatient is the patent the wife of the donor?
 	 * @return scaled CPRA double value between 0 and 1.0
 	 */
-	double generatePraIncompatibility(boolean isWifePatient) {
+	public double generatePraIncompatibility(boolean isWifePatient) {
 		double pr_PraIncompatiblity;
 
 		double r = random.nextDouble();
@@ -252,7 +252,7 @@ public class SaidmanPoolGenerator extends PoolGenerator {
 		}
 	}	
 	
-	private int[] drawHLA_B(){
+	public int[] drawHLA_B(){
 		int[] res = new int[2];
 		res[0] = random.nextInt(65);
 		while(true){
@@ -263,7 +263,7 @@ public class SaidmanPoolGenerator extends PoolGenerator {
 		return res;
 	}
 	
-	private int[] drawHLA_DR(){
+	public int[] drawHLA_DR(){
 		int[] res = new int[2];
 		res[0] = random.nextInt(21);
 		while(true){
@@ -318,7 +318,7 @@ public class SaidmanPoolGenerator extends PoolGenerator {
 	 * @param ID unique identifier for the vertex
 	 * @return altruistic donor vertex KPDVertexAltruist
 	 */
-	private VertexAltruist generateAltruist(int ID) {
+	public VertexAltruist generateAltruist(int ID) {
 
 		// Draw blood type for the altruist
 		BloodType bloodTypeAltruist = drawDonorBloodType();
