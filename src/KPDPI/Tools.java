@@ -1,17 +1,23 @@
 package KPDPI;
 
 import java.util.ArrayList;
+import org.apache.commons.math3.special.Gamma;
 
 import edu.cmu.cs.dickerson.kpd.structure.VertexPair;
 import edu.cmu.cs.dickerson.kpd.structure.types.BloodType;
 
 public class Tools {
 	static public final double[] D = {1,1,1,1,1,125,50,300,300,1,1,1,1,100,200,1,1,1,1};
+	public static double epsilon(int samples, double alpha){
+		return 2*Math.exp(Gamma.logGamma(19.0/2.0+1.0))*(1-Math.pow(Math.E,(Math.log(1-alpha)/samples)))/Math.pow(Math.PI,(19/2));
+	}
 	public static double eUtility(double[][] data, int l){
 		ArrayList<Integer> freq = new ArrayList<Integer>();
 		ArrayList<Double> value = new ArrayList<Double>();
 		double ret = 0;
 		for(int i = 0; i < data.length; i++){
+			if(data[i][l] == Integer.MAX_VALUE)
+				continue;
 			if(!value.contains(data[i][l])){
 				value.add(data[i][l]);
 				freq.add(1);
@@ -27,27 +33,6 @@ public class Tools {
 		return ret;
 	}
 	
-	//adapted from http://introcs.cs.princeton.edu/java/91float/Gamma.java.html
-	static double gamma(double x) {
-	    double tmp = (x - 0.5) * Math.log(x + 4.5) - (x + 4.5);
-	    double ser = 1.0 + 76.18009173    / (x + 0)   - 86.50532033    / (x + 1)
-	                     + 24.01409822    / (x + 2)   -  1.231739516   / (x + 3)
-	                     +  0.00120858003 / (x + 4)   -  0.00000536382 / (x + 5);
-	    return tmp + Math.exp(Math.log(ser * Math.sqrt(2 * Math.PI)));
-	 }
-	
-	//from my paper, assuming that we have a uniform distribution (this is also a bound that I proved)
-	public static int Samples(double alpha, double[] c){
-		double cprod = 1;
-		double dprod = 1;
-		for(int i = 0; i < D.length; i++){
-			cprod *= c[i];
-			dprod *= D[i];
-		}
-		System.out.println(cprod);
-		System.out.println(dprod);
-		return (int)Math.ceil(Math.log(1-alpha)/Math.log(1-(Math.pow(Math.PI,D.length/2)*cprod)/(gamma(D.length/2+1)*dprod)));
-	}
 	
 	public static double dist(VertexPair a, VertexPair b){
 		double sum = 0;
