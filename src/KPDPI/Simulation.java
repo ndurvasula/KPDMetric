@@ -38,10 +38,14 @@ public class Simulation {
 
 	VertexPair subject;
 	int trajectories;
+	int pairs0;
+	int alts0;
 
-	public Simulation(VertexPair s, int t) {
+	public Simulation(VertexPair s, int t, int p, int a) {
 		subject = s;
 		trajectories = t;
+		pairs0 = p;
+		alts0 = a;
 	}
 	
 	public double LKDPI(VertexPair p){
@@ -116,6 +120,7 @@ public class Simulation {
 			ArrayList<Cycle> matches = new ArrayList<Cycle>();
 
 			pool.addPair(subject);
+			poolGen.addVerticesToPool(pool, pairs0, alts0);
 
 			int totalSeen = 0;
 			int totalMatched = 0;
