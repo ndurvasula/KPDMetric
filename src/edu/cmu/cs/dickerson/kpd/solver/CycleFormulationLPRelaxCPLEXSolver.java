@@ -36,7 +36,7 @@ public class CycleFormulationLPRelaxCPLEXSolver extends CPLEXSolver {
 	 */
 	public Pair<Solution, Map<Integer, Double>> solve() throws SolverException {
 
-		IOUtil.dPrintln(getClass().getSimpleName(), "Solving cycle formulation LP.");
+		//IOUtil.dPrintln(getClass().getSimpleName(), "Solving cycle formulation LP.");
 
 		try {
 			super.initializeCPLEX();
@@ -76,7 +76,7 @@ public class CycleFormulationLPRelaxCPLEXSolver extends CPLEXSolver {
 
 			// Solve the model, get base statistics (solve time, objective value, etc)
 			Solution sol = super.solveCPLEX();
-			IOUtil.dPrintln(getClass().getSimpleName(), "Solved LP!  Objective value: " + sol.getObjectiveValue());
+			//IOUtil.dPrintln(getClass().getSimpleName(), "Solved LP!  Objective value: " + sol.getObjectiveValue());
 
 			double[] vals = cplex.getValues(x);
 			Map<Integer, Double> cycleMap = new HashMap<Integer, Double>();

@@ -1,6 +1,7 @@
-package KPDPI;
+package KPDM;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -24,6 +25,7 @@ import edu.cmu.cs.dickerson.kpd.structure.alg.CycleGenerator;
 import edu.cmu.cs.dickerson.kpd.structure.alg.CycleMembership;
 import edu.cmu.cs.dickerson.kpd.structure.alg.FailureProbabilityUtil;
 import edu.cmu.cs.dickerson.kpd.structure.generator.PoolGenerator;
+import edu.cmu.cs.dickerson.kpd.structure.generator.SaidmanPoolGenerator;
 import edu.cmu.cs.dickerson.kpd.structure.generator.SparseUNOSSaidmanPoolGenerator;
 import edu.cmu.cs.dickerson.kpd.structure.types.BloodType;
 
@@ -31,8 +33,8 @@ public class Simulation {
 	// Probabilities generated based on a match frequency of 1 day
 	static final int CHAIN_CAP = 4;
 	static final int CYCLE_CAP = 3;
-	static final int EXPECTED_PAIRS = 15;
-	static final int EXPECTED_ALTRUISTS = 1;
+	static int EXPECTED_PAIRS = 15;
+	static int EXPECTED_ALTRUISTS = 1;
 	static final double DEATH = 0.000580725433182381168050643691;
 	static final double PATIENCE = 0.02284;
 	static final double RENEGE = .5;
@@ -42,20 +44,131 @@ public class Simulation {
 	int pairs0;
 	int alts0;
 
-	public Simulation(VertexPair s, int t, int p, int a) {
+	public Simulation(VertexPair s, int t, int p, int a, int ep, int ea) {
 		subject = s;
 		trajectories = t;
 		pairs0 = p;
 		alts0 = a;
+		EXPECTED_PAIRS = ep;
+		EXPECTED_ALTRUISTS = ea;
 	}
 	
+	//Receive command line arguments from python BayesOpt client and run the simulation
 	public static void main(String[] args){
-		BloodType btp;
-		BloodType btd;
-		boolean iwp;
+		BloodType btp = null;
+		BloodType btd = null;
+		boolean iwp = false;
 		double pcpra;
-		boolean ic;
+		boolean ic = false;
 		double egfr;
+		double dbmi;
+		double pw;
+		double dw;
+		boolean iaa = false;
+		boolean icu = false;
+		boolean ipm = false;
+		boolean idm = false;
+		boolean ir = false;
+		double da;
+		double dsbp;
+		int[] dhlab = new int[2];
+		int[] dhladr = new int[2];
+		int[] phlab = new int[2];
+		int[] phladr = new int[2];
+		
+		switch((int)Double.parseDouble(args[0])){
+		case 0: btp = BloodType.O;
+		break;
+		case 1: btp = BloodType.A;
+		break;
+		case 2: btp = BloodType.B;
+		break;
+		case 3: btp = BloodType.AB;
+		break;
+		}
+		
+		switch((int)Double.parseDouble(args[1])){
+		case 0: btd = BloodType.O;
+		break;
+		case 1: btd = BloodType.A;
+		break;
+		case 2: btd = BloodType.B;
+		break;
+		case 3: btd = BloodType.AB;
+		break;
+		}
+		
+		switch((int)Double.parseDouble(args[2])){
+		case 0: iwp = false;
+		break;
+		case 1: iwp = true;
+		break;
+		}
+		
+		pcpra = Double.parseDouble(args[3]);
+		
+		switch((int)Double.parseDouble(args[4])){
+		case 0: ic = false;
+		break;
+		case 1: ic = true;
+		break;
+		}
+		
+		egfr = Double.parseDouble(args[5]);
+		
+		dbmi = Double.parseDouble(args[6]);
+		
+		pw = Double.parseDouble(args[7]);
+		
+		dw = Double.parseDouble(args[8]);
+		
+		switch((int)Double.parseDouble(args[9])){
+		case 0: iaa = false;
+		break;
+		case 1: iaa = true;
+		break;
+		}
+		
+		switch((int)Double.parseDouble(args[10])){
+		case 0: icu = false;
+		break;
+		case 1: icu = true;
+		break;
+		}
+		
+		switch((int)Double.parseDouble(args[11])){
+		case 0: ipm = false;
+		break;
+		case 1: ipm = true;
+		break;
+		}
+		
+		switch((int)Double.parseDouble(args[12])){
+		case 0: idm = false;
+		break;
+		case 1: idm = true;
+		break;
+		}
+		
+		
+		da = Double.parseDouble(args[13]);
+		
+		dsbp = Double.parseDouble(args[14]);
+		
+		for(int i = 0; i < 2; i++){
+			phlab[i] = (int)Double.parseDouble(args[15+i]);
+			phladr[i] = (int)Double.parseDouble(args[17+i]);
+		}
+		int traj = (int)Double.parseDouble(args[19]);
+		int pstart = (int)Double.parseDouble(args[20]);
+		int astart = (int)Double.parseDouble(args[21]);
+		int ep = (int)Double.parseDouble(args[22]);
+		int ea = (int)Double.parseDouble(args[23]);
+
+		VertexPair s = new VertexPair(0, btp, btd, iwp, pcpra, ic, egfr, dbmi, pw, dw, iaa, icu, ipm, idm, ir, da, dsbp, dhlab, dhladr, phlab, phladr);
+		
+		Simulation q = new Simulation(s,traj,pstart,astart,ep,ea);
+		q.run();
 		
 	}
 	
@@ -108,8 +221,8 @@ public class Simulation {
 		return ret;
 	}
 
-	public double[][] run() {
-		double[][] ret = new double[trajectories][2];
+	public void run() {
+		Object[][] ret = new Object[trajectories][2];
 		long startTime = System.currentTimeMillis();
 		for (int i = 0; i < trajectories; i++) {
 
@@ -124,7 +237,7 @@ public class Simulation {
 			long rDepartureSeed = System.currentTimeMillis() + 2L;
 			Random rDeparture = new Random(rDepartureSeed);
 
-			PoolGenerator poolGen = new SparseUNOSSaidmanPoolGenerator(rEntrance);
+			PoolGenerator poolGen = new SaidmanPoolGenerator(rEntrance);
 			ExponentialArrivalDistribution m = new ExponentialArrivalDistribution(1.0 / EXPECTED_PAIRS);
 			ExponentialArrivalDistribution a = new ExponentialArrivalDistribution(1.0 / EXPECTED_ALTRUISTS);
 			Pool pool = new Pool(Edge.class);
@@ -141,16 +254,11 @@ public class Simulation {
 			int t = 0;
 
 			while (true) {
-				if(t == 250){
-					ret[i][0] = Integer.MAX_VALUE;
-					ret[i][1] = Integer.MAX_VALUE;
-					break;
-				}
 				boolean stop = false;
 				// Add new vertices to the pool
 				int pairs = m.draw().intValue();
 				int alts = a.draw().intValue();
-				System.out.println("ITERATION: " + t + "\t" + pairs + " new pairs and " + alts + " new altruist(s)");
+				//System.out.println("ITERATION: " + t + "\t" + pairs + " new pairs and " + alts + " new altruist(s)");
 				if (pairs > 0) {
 					totalSeen += poolGen.addVerticesToPool(pool, pairs, alts).size();
 				}
@@ -225,7 +333,7 @@ public class Simulation {
 									else{
 										bridge = (VertexAltruist)pool.getEdgeSource(e);
 									}
-									ret[i][0] = LKDPI((VertexPair)pool.getEdgeTarget(e), bridge);
+									ret[i][0] = new Vertex[]{(VertexPair)pool.getEdgeTarget(e), bridge};
 									ret[i][1] = t;
 									stop = true;
 									break;
@@ -250,7 +358,7 @@ public class Simulation {
 										VertexPair donorPair = (VertexPair)pool.getEdgeSource(e);
 										VertexAltruist donor = new VertexAltruist(donorPair.getID(),
 												donorPair.getBloodTypeDonor(), donorPair.getDonorWeight(), donorPair.isDonorMale(), donorPair.getDonorHLA_B(), donorPair.getDonorHLA_DR(), donorPair.getDonorAge(), donorPair.isAfricanAmerican(), donorPair.getDonorSBP(), donorPair.isCigaretteUser(), donorPair.getDonorBMI(), donorPair.geteGFR());
-										ret[i][0] = LKDPI((VertexPair)pool.getEdgeTarget(e),donor);
+										ret[i][0] = new Vertex[]{(VertexPair)pool.getEdgeTarget(e),donor};
 										ret[i][1] = t;
 									}
 								}
@@ -258,7 +366,6 @@ public class Simulation {
 							totalMatched += Cycle.getConstituentVertices(ci, pool).size();
 							pool.removeAllVertices(Cycle.getConstituentVertices(ci, pool));
 						}
-						
 						if(stop)
 							break;
 						// Remove this match from our current set of matchings
@@ -277,6 +384,7 @@ public class Simulation {
 				// true);
 
 				try {
+					System.out.println("Starting the solver on iteration " + t);
 					// Solution optSolIP = optIPS.solve();
 					GreedyPackingSolver s = new GreedyPackingSolver(pool);
 					List<Cycle> reducedCycles = (new CycleGenerator(pool)).generateCyclesAndChains(3, 0, true);
@@ -285,26 +393,74 @@ public class Simulation {
 					for (Cycle c : sol.getMatching()) {
 						matches.add(c);
 					}
+					System.out.println("Finished the solver on iteration " + t);
 				} catch (SolverException e) {
 					e.printStackTrace();
 					System.exit(-1);
 				}
-				System.out.println("ITERATION: "+t);
+				/*System.out.println("ITERATION: "+t);
 
 				System.out.println(totalSeen + " vertices were seen");
 				System.out.println(totalMatched + " vertices were matched");
 				System.out.println(totalFailedMatches + " matches failed");
-				System.out.println(totalDeceased + " patients died");
+				System.out.println(totalDeceased + " patients died");*/
 
 				long endTime = System.currentTimeMillis();
 
-				System.out.println(endTime - startTime);
+				//System.out.println(endTime - startTime);
 				t++;
 				if(stop)
 					break;
 			}
 		}
-		return ret;
+		//Output results to STDOUT
+		double age = 0;
+		double eGFR = 0;
+		double bmi = 0;
+		double iaa = 0;
+		double icu = 0;
+		double sbp = 0;
+		double abm = 0;
+		double abo = 0;
+		double hlab = 0;
+		double hladr = 0;
+		double drwr = 0;
+		double time = 0;
+		for(int i = 0; i < trajectories; i++){
+			time += (Integer)ret[i][1];
+			VertexAltruist a = (VertexAltruist)((Vertex[])ret[i][0])[1];
+			VertexPair p = (VertexPair)((Vertex[])ret[i][0])[0];
+			age += a.getDonorAge();
+			eGFR += a.geteGFR();
+			bmi += a.getDonorBMI();
+			if(a.isAfricanAmerican())
+				iaa++;
+			if(a.isCigaretteUser())
+				icu++;
+			sbp += a.getDonorSBP();
+			if(p.isPatientMale() && a.isMale())
+				abm++;
+			if(!p.getBloodTypePatient().equals(a.getBloodTypeDonor()))
+				abo++;
+			hlab += p.getBMismatches(a);
+			hladr += p.getDRMismatches(a);
+			drwr += p.getDRWR(a);
+		}
+		age /= trajectories;
+		eGFR /= trajectories;
+		bmi /= trajectories;
+		iaa /= trajectories;
+		icu /= trajectories;
+		sbp /= trajectories;
+		abm /= trajectories;
+		abo /= trajectories;
+		hlab /= trajectories;
+		hladr /= trajectories;
+		drwr /= trajectories;
+		time /= trajectories;
+		//Returns to STDOUT all of the expected values, not in discrete form
+		//This allows for GP regression, and rounding to make it discrete can occur afterwords
+		System.out.println(age+" "+eGFR+" "+bmi+" "+iaa+" "+icu+" "+sbp+" "+abm+" "+abo+" "+hlab+" "+hladr+" "+drwr+" "+time);
 
 	}
 

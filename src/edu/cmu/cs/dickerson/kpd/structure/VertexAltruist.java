@@ -13,6 +13,13 @@ public class VertexAltruist extends Vertex {
 	
 	private final boolean isMale;
 	
+	double age;
+	boolean isAfricanAmerican;
+	double sbp;
+	double bmi;
+	boolean isCigaretteUser;
+	double egfr;
+	
 	//HLA B and DR
 	private final int[] HLA_B;
 	private final int[] HLA_DR;
@@ -23,14 +30,18 @@ public class VertexAltruist extends Vertex {
 	 * @param ID
 	 * @param bloodTypeDonor
 	 */
-	public VertexAltruist(int ID, BloodType bloodTypeDonor, double weight, boolean isMale, int[] HLA_B, int[] HLA_DR) {
+	public VertexAltruist(int ID, BloodType bloodTypeDonor, double weight, boolean isMale, int[] HLA_B, int[] HLA_DR, double age, boolean isAfricanAmerican, double sbp, boolean isCigaretteUser, double bmi, double eGFR) {
 		super(ID);
 		this.bloodTypeDonor = bloodTypeDonor;
 		this.weight = weight;
 		this.isMale = isMale;
 		this.HLA_B = HLA_B;
 		this.HLA_DR = HLA_DR;
-		
+		this.age = age;
+		this.sbp = sbp;
+		this.isCigaretteUser = isCigaretteUser;
+		this.bmi = bmi;
+		this.egfr = eGFR;
 	}
 	
 	@Override
@@ -56,5 +67,23 @@ public class VertexAltruist extends Vertex {
 
 	public int[] getHLA_DR() {
 		return HLA_DR;
+	}
+	public double getDonorAge(){
+		return age;
+	}
+	public double getDonorSBP(){
+		return sbp;
+	}
+	public boolean isCigaretteUser(){
+		return isCigaretteUser;
+	}
+	public boolean isAfricanAmerican(){
+		return isAfricanAmerican;
+	}
+	public double getDonorBMI(){
+		return bmi;
+	}
+	public double geteGFR(){
+		return egfr;
 	}
 }

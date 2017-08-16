@@ -21,7 +21,7 @@ public final class IOUtil {
 
 	private IOUtil() {}
 
-	public static final boolean DEBUG = true;
+	public static final boolean DEBUG = false;
 	public static void dPrint(Object o) { 
 		if(DEBUG) { System.err.print(o.toString()); }
 	}

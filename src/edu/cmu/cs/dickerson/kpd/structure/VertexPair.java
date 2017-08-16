@@ -1,5 +1,7 @@
 package edu.cmu.cs.dickerson.kpd.structure;
 
+import java.util.Arrays;
+
 import edu.cmu.cs.dickerson.kpd.structure.real.UNOSPair;
 import edu.cmu.cs.dickerson.kpd.structure.types.BloodType;
 
@@ -12,10 +14,10 @@ public class VertexPair extends Vertex {
 	// Patient's calculated probability of positive crossmatch, scaled [0,1]
 	private final double patientCPRA;
 	
-	//estimated glomerular filtration rate, in mL/min/1.73 m^2
+	//estimated glomerular filtration rate, in mL/min/1.73 m^2/10
 	private final double eGFR;
 		
-	private final double patientBMI;
+	private final double donorBMI;
 	
 	private final double patientWeight;
 	
@@ -38,10 +40,10 @@ public class VertexPair extends Vertex {
 	// Is the donor compatible with the patient
 	private final boolean isCompatible;
 	
-	private final int patientAge;
+	private final double donorAge;
 	
 	//Systolic blood pressure
-	private final int patientSBP;
+	private final double donorSBP;
 	
 	//HLA Donor
 	private final int[] donorHLA_B;
@@ -53,7 +55,7 @@ public class VertexPair extends Vertex {
 	
 	public Object[] features;
 	
-	public VertexPair(int ID, BloodType bloodTypePatient, BloodType bloodTypeDonor, boolean isWifePatient, double patientCPRA, boolean isCompatible, double eGFR, double patientBMI, double patientWeight, double donorWeight, boolean isAfricanAmerican, boolean isCigaretteUser, boolean isPatientMale, boolean isDonorMale, boolean isRelated, int patientAge, int patientSBP, int[] donorHLA_B, int[] donorHLA_DR, int[] patientHLA_B, int[] patientHLA_DR) {
+	public VertexPair(int ID, BloodType bloodTypePatient, BloodType bloodTypeDonor, boolean isWifePatient, double patientCPRA, boolean isCompatible, double eGFR, double donorBMI, double patientWeight, double donorWeight, boolean isAfricanAmerican, boolean isCigaretteUser, boolean isPatientMale, boolean isDonorMale, boolean isRelated, double donorAge, double donorSBP, int[] donorHLA_B, int[] donorHLA_DR, int[] patientHLA_B, int[] patientHLA_DR) {
 		super(ID);
 		this.bloodTypePatient = bloodTypePatient;
 		this.bloodTypeDonor = bloodTypeDonor;
@@ -61,7 +63,7 @@ public class VertexPair extends Vertex {
 		this.patientCPRA = patientCPRA;
 		this.isCompatible = isCompatible;
 		this.eGFR = eGFR;
-		this.patientBMI = patientBMI;
+		this.donorBMI = donorBMI;
 		this.patientWeight = patientWeight;
 		this.donorWeight = donorWeight;
 		this.isAfricanAmerican = isAfricanAmerican;
@@ -69,13 +71,13 @@ public class VertexPair extends Vertex {
 		this.isPatientMale = isPatientMale;
 		this.isDonorMale = isDonorMale;
 		this.isRelated = isRelated;
-		this.patientAge = patientAge;
-		this.patientSBP = patientSBP;
+		this.donorAge = donorAge;
+		this.donorSBP = donorSBP;
 		this.donorHLA_B = donorHLA_B;
 		this.donorHLA_DR = donorHLA_DR;
 		this.patientHLA_B = patientHLA_B;
 		this.patientHLA_DR = patientHLA_DR;
-		features = new Object[] {bloodTypePatient, bloodTypeDonor, isWifePatient, patientCPRA, isCompatible, eGFR, patientBMI, patientWeight, donorWeight, isAfricanAmerican, isCigaretteUser, isPatientMale, isDonorMale, patientAge, patientSBP, donorHLA_B, donorHLA_DR, patientHLA_B, patientHLA_DR};
+		features = new Object[] {bloodTypePatient, bloodTypeDonor, isWifePatient, patientCPRA, isCompatible, eGFR, donorBMI, patientWeight, donorWeight, isAfricanAmerican, isCigaretteUser, isPatientMale, isDonorMale, donorAge, donorSBP, donorHLA_B, donorHLA_DR, patientHLA_B, patientHLA_DR};
 	}
 	
 	public int getBMismatches(){
@@ -126,8 +128,8 @@ public class VertexPair extends Vertex {
 		return eGFR;
 	}
 
-	public double getPatientBMI() {
-		return patientBMI;
+	public double getDonorBMI() {
+		return donorBMI;
 	}
 
 	public double getPatientWeight() {
@@ -158,12 +160,12 @@ public class VertexPair extends Vertex {
 		return isRelated;
 	}
 
-	public int getPatientAge() {
-		return patientAge;
+	public double getDonorAge() {
+		return donorAge;
 	}
 
-	public int getPatientSBP() {
-		return patientSBP;
+	public double getDonorSBP() {
+		return donorSBP;
 	}
 
 	public int[] getDonorHLA_B() {

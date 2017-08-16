@@ -18,7 +18,7 @@ public class CycleMembership {
 	
 	public CycleMembership(Pool pool, List<Cycle> cycles) {
 
-		IOUtil.dPrintln(getClass().getSimpleName(), "Computing membership for " + pool.vertexSet().size() + " vertices and " + cycles.size() + " cycles/chains.");
+		//IOUtil.dPrintln(getClass().getSimpleName(), "Computing membership for " + pool.vertexSet().size() + " vertices and " + cycles.size() + " cycles/chains.");
 		
 		// Want to make sure EVERY vertex in the pool is in this map
 		membership = new HashMap<Vertex, Set<Integer>>();
@@ -36,7 +36,7 @@ public class CycleMembership {
 			cycleIdx++;
 		}
 		
-		IOUtil.dPrintln(getClass().getSimpleName(), "Done computing membership.");
+		//IOUtil.dPrintln(getClass().getSimpleName(), "Done computing membership.");
 	}
 
 	public Set<Integer> getMembershipSet(Vertex v) {

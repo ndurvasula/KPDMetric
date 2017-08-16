@@ -8,8 +8,8 @@ import edu.cmu.cs.dickerson.kpd.structure.types.BloodType;
 
 public class Tools {
 	static public final double[] D = {1,1,1,1,1,125,50,300,300,1,1,1,1,100,200,1,1,1,1};
-	public static double epsilon(int samples, double alpha){
-		return 2*Math.exp(Gamma.logGamma(19.0/2.0+1.0))*(1-Math.pow(Math.E,(Math.log(1-alpha)/samples)))/Math.pow(Math.PI,(19/2));
+	public static double epsilon(long samples, double alpha){
+		return Math.pow(Math.exp(Gamma.logGamma(19.0/2.0+1.0))*(1-Math.pow(Math.E,(Math.log(1-Math.pow(alpha,1))/samples)))/Math.pow(Math.PI,(19/2)),(double)1/19);
 	}
 	public static double eUtility(double[][] data, int l){
 		ArrayList<Integer> freq = new ArrayList<Integer>();

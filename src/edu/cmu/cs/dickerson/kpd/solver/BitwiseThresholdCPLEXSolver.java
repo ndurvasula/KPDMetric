@@ -48,7 +48,7 @@ public class BitwiseThresholdCPLEXSolver  extends CPLEXSolver {
 			}
 
 
-			IOUtil.dPrintln(getClass().getSimpleName(), "Writing down " + (isFeasibilityIP ? "feasibility" : "minimization") + " bitwise IP with #decVars=" + x.length + ", MIPgap=" + super.getRelativeMipGap() + " ...");
+			//IOUtil.dPrintln(getClass().getSimpleName(), "Writing down " + (isFeasibilityIP ? "feasibility" : "minimization") + " bitwise IP with #decVars=" + x.length + ", MIPgap=" + super.getRelativeMipGap() + " ...");
 
 
 			// Determine which edges exist and which don't (ignoring stuff like self and dummy edges)

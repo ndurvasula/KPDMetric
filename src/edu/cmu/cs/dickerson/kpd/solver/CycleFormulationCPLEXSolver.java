@@ -30,7 +30,7 @@ public class CycleFormulationCPLEXSolver extends CPLEXSolver {
 
 	public Solution solve() throws SolverException {
 
-		IOUtil.dPrintln(getClass().getSimpleName(), "Solving cycle formulation IP.");
+		//IOUtil.dPrintln(getClass().getSimpleName(), "Solving cycle formulation IP.");
 
 		// If no cycles, problem is possibly unbounded; return 0-value empty solution
 		if(cycles.size() == 0) {
@@ -85,8 +85,8 @@ public class CycleFormulationCPLEXSolver extends CPLEXSolver {
 				}
 			}
 
-			IOUtil.dPrintln(getClass().getSimpleName(), "Solved IP!  Objective value: " + sol.getObjectiveValue());
-			IOUtil.dPrintln(getClass().getSimpleName(), "Number of cycles in matching: " + sol.getMatching().size());
+			//IOUtil.dPrintln(getClass().getSimpleName(), "Solved IP!  Objective value: " + sol.getObjectiveValue());
+			//IOUtil.dPrintln(getClass().getSimpleName(), "Number of cycles in matching: " + sol.getMatching().size());
 
 			// TODO move to a JUnit test
 			// Sanity check to make sure the matching is vertex disjoint
@@ -95,7 +95,7 @@ public class CycleFormulationCPLEXSolver extends CPLEXSolver {
 				for(Edge e : c.getEdges()) {
 					Vertex v = pool.getEdgeSource(e);
 					if(seenVerts.contains(v)) {
-						IOUtil.dPrintln(getClass().getSimpleName(), "A vertex (" + v + ") was in more than one matched cycle; aborting.");
+						//IOUtil.dPrintln(getClass().getSimpleName(), "A vertex (" + v + ") was in more than one matched cycle; aborting.");
 					}
 					seenVerts.add(v);
 				}

@@ -45,7 +45,7 @@ public class CycleLPRelaxationPacker extends Packer {
 	 */
 	private void init() {
 
-		IOUtil.dPrintln(this.getClass().getSimpleName(), "Doing one-time heavyweight LP relaxation initialization");
+		//IOUtil.dPrintln(this.getClass().getSimpleName(), "Doing one-time heavyweight LP relaxation initialization");
 
 		CycleFormulationLPRelaxCPLEXSolver solver = new CycleFormulationLPRelaxCPLEXSolver(this.pool, this.cycles, this.membership);
 		try {
@@ -117,7 +117,7 @@ public class CycleLPRelaxationPacker extends Packer {
 					String.valueOf(matching.size()),     // #cycles/chains in match
 					String.valueOf(this.lpObjVal),       // LP relaxation complete objective
 					String.valueOf(objVal) }));          // objective of packed solution
-			IOUtil.writeValuesToFile("decvars_v"+pool.vertexSet().size()+"_"+System.currentTimeMillis()+".csv", headers, sortedIndex, cycles);
+			//IOUtil.writeValuesToFile("decvars_v"+pool.vertexSet().size()+"_"+System.currentTimeMillis()+".csv", headers, sortedIndex, cycles);
 		}
 
 		// Construct formal matching, return

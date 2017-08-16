@@ -10,7 +10,7 @@ import edu.cmu.cs.dickerson.kpd.structure.Pool;
 public abstract class CPLEXSolver extends Solver {
 
 	protected static IloCplex cplex = null;
-	protected boolean doDebugPrint = true;
+	protected boolean doDebugPrint = false;
 	
 	public CPLEXSolver(Pool pool) {
 		super(pool);
@@ -21,6 +21,7 @@ public abstract class CPLEXSolver extends Solver {
 		// Either initialize CPLEX or clear out any old data
 		if(null == cplex) {
 			cplex = new IloCplex();
+			cplex.setOut(null);
 		} else {
 			cplex.clearModel();
 		}

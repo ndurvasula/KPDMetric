@@ -1,8 +1,12 @@
 package edu.cmu.cs.dickerson.kpd.structure.generator;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.Set;
 
 import edu.cmu.cs.dickerson.kpd.structure.Edge;
@@ -27,7 +31,6 @@ public class SaidmanPoolGenerator extends PoolGenerator {
 
 	// Numbers taken from Saidman et al.'s 2006 paper "Increasing
 	// the Opportunity of Live Kidney Donation..."
-	protected double Pr_FEMALE = 0.4090;
 
 	protected double Pr_SPOUSAL_DONOR = 0.4897;
 
@@ -39,155 +42,127 @@ public class SaidmanPoolGenerator extends PoolGenerator {
 	protected double Pr_HIGH_PRA_INCOMPATIBILITY = 0.90;
 
 	protected double Pr_SPOUSAL_PRA_COMPATIBILITY = 0.75;
-
-	protected double Pr_PATIENT_TYPE_O = 0.4814;
-	protected double Pr_PATIENT_TYPE_A = 0.3373;
-	protected double Pr_PATIENT_TYPE_B = 0.1428;
-
-	protected double Pr_DONOR_TYPE_O = 0.4814;
-	protected double Pr_DONOR_TYPE_A = 0.3373;
-	protected double Pr_DONOR_TYPE_B = 0.1428;
 	
 	//Probabilities/values for features required by LKDPI
-	//These will be provided by the exchange usually, but for now its bogus
 
-	//Booleans (no source, total BS)
-	protected double Pr_isAfricanAmerican = 0.2;
-	protected double Pr_isCigaretteUser = .1;
-	protected double Pr_isPatientMale = .5;
-	protected double Pr_isDonorMale = .5;
-	protected double Pr_isRelated = .8; //only applies to VertexPair
+
+	protected double Pr_isAfricanAmerican = 0.131;
+	protected double Pr_isCigaretteUser = .24;
 	
-	//Doubles/Integers (all probabilities are BS)
-	
-	//eGFR
-	protected double eGFR_HIGH = 90; //From https://medlineplus.gov/ency/article/007305.htm
-	protected double eGFR_MED = 60;
-	protected double eGFR_LOW = 30;
-	
-	protected double Pr_eGFR_HIGH = .3;
-	protected double Pr_eGFR_MED = .4;
-	protected double Pr_eGFR_LOW = .3;
-	
-	//BMI (LOW is healthy, MED is overweight, and HIGH is obese)
-	protected double BMI_HIGH = 35; //From https://www.cdc.gov/nchs/data/nhanes/databriefs/adultweight.pdf
-	protected double BMI_MED = 27;
-	protected double BMI_LOW = 22;
-	
-	protected double Pr_BMI_HIGH = .3;
-	protected double Pr_BMI_MED = .5;
-	protected double Pr_BMI_LOW = .2;
-	
-	//Weight (same convention as BMI, same source, and same probabilities)
-	protected double weight_HIGH = 200;
-	protected double weight_MED = 170;
-	protected double weight_LOW = 130;
-	
-	//Age (no source, total BS)
-	protected int patientAge_HIGH = 70;
-	protected int patientAge_MED = 50;
-	protected int patientAge_LOW = 30;
-	
-	protected double Pr_patientAge_HIGH = .4;
-	protected double Pr_patientAge_MED = .5;
-	protected double Pr_patientAge_LOW = .1;
-	
+	//Doubles/Integers
+
 	//Systolic blood pressure (LOW is healthy)
-	protected int SBP_HIGH = 160; //From http://www.mayoclinic.org/diseases-conditions/high-blood-pressure/in-depth/blood-pressure/art-20050982
-	protected int SBP_MED = 140;
-	protected int SBP_LOW = 120;
+	protected double Pr_SBP_HIGH = .071;
+	protected double Pr_SBP_MED = .396;
+	protected double Pr_SBP_LOW = .533;
 	
-	protected double Pr_SBP_HIGH = .3;
-	protected double Pr_SBP_MED = .4;
-	protected double Pr_SBP_LOW = .3;
-	
+	HashMap<String, ArrayList<String>> fmap = new HashMap<String, ArrayList<String>>();
 	
 	// Current unused vertex ID for optimization graphs
 	public int currentVertexID;
 
 	public SaidmanPoolGenerator(Random random) {
 		super(random);
-		this.currentVertexID = 0;
+		this.currentVertexID = 1;
 	}
 
+	public String drawFromFile(String featureName) throws FileNotFoundException{
+		ArrayList<String> data = fmap.get(featureName);
+		if(data == null){
+			Scanner sc = new Scanner(new File("distributions/"+featureName+".txt"));
+			data = new ArrayList<String>();
+			while(sc.hasNext()){
+				String a = sc.next();
+				if(!a.equals("UNK"))
+					data.add(a);
+			}
+			sc.close();
+			fmap.put(featureName, data);
+		}
+		return data.get(random.nextInt(data.size()));
+	}
+	
 	/**
-	 * Draws a random patient's blood type from the US distribution 
+	 * Draws a random patient's blood type using UNOS distribution
 	 * @return BloodType.{O,A,B,AB}
+	 * @throws FileNotFoundException 
 	 */
-	public BloodType drawPatientBloodType() {
-		double r = random.nextDouble();
-
-		if (r <= Pr_PATIENT_TYPE_O) { return BloodType.O; }
-		if (r <= Pr_PATIENT_TYPE_O + Pr_PATIENT_TYPE_A) { return BloodType.A; }
-		if (r <= Pr_PATIENT_TYPE_O + Pr_PATIENT_TYPE_A + Pr_PATIENT_TYPE_B) { return BloodType.B; }
-		return BloodType.AB;
+	public BloodType drawPatientBloodType() throws FileNotFoundException {
+		String BT = drawFromFile("ABO");
+		if(BT.contains("O"))
+			return BloodType.O;
+		else if(BT.contains("A"))
+			return BloodType.A;
+		else if(BT.contains("B"))
+			return BloodType.B;
+		else if(BT.contains("AB"))
+			return BloodType.AB;
+		else{
+			System.out.println(BT);
+			return null;
+		}
+		
 	}
 
 	/**
 	 * Draws a random donor's blood type from the US distribution 
 	 * @return BloodType.{O,A,B,AB}
+	 * @throws FileNotFoundException 
 	 */
-	public BloodType drawDonorBloodType() {
-		double r = random.nextDouble();
-
-		if (r <= Pr_DONOR_TYPE_O) { return BloodType.O; }
-		if (r <= Pr_DONOR_TYPE_O + Pr_DONOR_TYPE_A) { return BloodType.A; }
-		if (r <= Pr_DONOR_TYPE_O + Pr_DONOR_TYPE_A + Pr_DONOR_TYPE_B) { return BloodType.B; }
-		return BloodType.AB;
+	public BloodType drawDonorBloodType() throws FileNotFoundException {
+		String BT = drawFromFile("ABO_DON");
+		if(BT.contains("O"))
+			return BloodType.O;
+		else if(BT.contains("A"))
+			return BloodType.A;
+		else if(BT.contains("B"))
+			return BloodType.B;
+		else if(BT.contains("AB"))
+			return BloodType.AB;
+		else{
+			System.out.println(BT);
+			return null;
+		}
+		
 	}
-	
+	//.24 for cigarette, .11 for african american, GFR random between 78 to 136, SBP < 120 .533 120-139 .396 >=140 .71
 	public double draweGFR() {
-		double r = random.nextDouble();
-
-		if (r <= Pr_eGFR_LOW) { return eGFR_LOW; }
-		if (r <= Pr_eGFR_LOW + Pr_eGFR_MED) { return eGFR_MED; }
-		if (r <= Pr_eGFR_LOW + Pr_eGFR_MED + Pr_eGFR_HIGH) { return eGFR_HIGH; }
-		return 0;
+		double r = random.nextInt(59)+78;
+		return r;
 	}
 	
-	public double drawBMI() {
-		double r = random.nextDouble();
-
-		if (r <= Pr_BMI_LOW) { return BMI_LOW; }
-		if (r <= Pr_BMI_LOW + Pr_BMI_MED) { return BMI_MED; }
-		if (r <= Pr_BMI_LOW + Pr_BMI_MED + Pr_BMI_HIGH) { return BMI_HIGH; }
-		return 0;
+	public double drawBMI() throws FileNotFoundException {
+		String BMI = drawFromFile("BMI_DON_CALC");
+		return Double.parseDouble(BMI);
 	}
 	
-	public double drawWeight() {
-		double r = random.nextDouble();
-
-		if (r <= Pr_BMI_LOW) { return weight_LOW; }
-		if (r <= Pr_BMI_LOW + Pr_BMI_MED) { return weight_MED; }
-		if (r <= Pr_BMI_LOW + Pr_BMI_MED + Pr_BMI_HIGH) { return weight_HIGH; }
-		return 0;
+	public double drawDonorWeight() throws FileNotFoundException {
+		String DW = drawFromFile("WGT_KG_DON_CALC");
+		return Double.parseDouble(DW);
 	}
-	
-	public int drawPatientAge() {
-		double r = random.nextDouble();
-
-		if (r <= Pr_patientAge_LOW) { return patientAge_LOW; }
-		if (r <= Pr_patientAge_LOW + Pr_patientAge_MED) { return patientAge_MED; }
-		if (r <= Pr_patientAge_LOW + Pr_patientAge_MED + Pr_patientAge_HIGH) { return patientAge_HIGH; }
-		return 0;
+	public double drawPatientWeight() throws NumberFormatException, FileNotFoundException {
+		return Double.parseDouble(drawFromFile("WGT_KG_CALC"));
+	}
+	public int drawDonorAge() throws FileNotFoundException {
+		String age = drawFromFile("AGE_DON");
+		return (int)Double.parseDouble(age);
 	}
 	
 	public int drawSBP() {
 		double r = random.nextDouble();
 
-		if (r <= Pr_SBP_LOW) { return SBP_LOW; }
-		if (r <= Pr_SBP_LOW + Pr_SBP_MED) { return SBP_MED; }
-		if (r <= Pr_SBP_LOW + Pr_SBP_MED + Pr_SBP_HIGH) { return SBP_HIGH; }
+		if (r <= Pr_SBP_LOW) { 
+			return random.nextInt(11)+110; 
+			}
+		if (r <= Pr_SBP_LOW + Pr_SBP_MED) { 
+			return random.nextInt(20)+120; 
+			}
+		if (r <= Pr_SBP_LOW + Pr_SBP_MED + Pr_SBP_HIGH) { 
+			return random.nextInt(11)+140; 
+			}
 		return 0;
 	}
 	
-	/**
-	 * Draws a random gender from the US waitlist distribution
-	 * @return true if patient is female, false otherwise
-	 */
-	public boolean isPatientFemale() {
-		return random.nextDouble() <= Pr_FEMALE;
-	}
 
 	/**
 	 * Draws a random spousal relationship between donor and patient
@@ -214,16 +189,17 @@ public class SaidmanPoolGenerator extends PoolGenerator {
 		return random.nextDouble() <= Pr_isCigaretteUser;
 	}
 	
-	public boolean isDonorMale(){
-		return random.nextDouble() <= Pr_isDonorMale;
+	public boolean isDonorMale() throws FileNotFoundException{
+		return drawFromFile("GENDER_DON").equals("M");
 	}
 	
-	public boolean isPatientMale(){
-		return random.nextDouble() <= Pr_isPatientMale;
+	public boolean isPatientMale() throws FileNotFoundException{
+		return drawFromFile("GENDER").equals("M");
 	}
+	
 	
 	public boolean isRelated(){
-		return random.nextDouble() <= Pr_isRelated;
+		return false;
 	}
 
 	/**
@@ -252,25 +228,30 @@ public class SaidmanPoolGenerator extends PoolGenerator {
 		}
 	}	
 	
-	public int[] drawHLA_B(){
+	public int[] drawHLA_B() throws NumberFormatException, FileNotFoundException{
 		int[] res = new int[2];
-		res[0] = random.nextInt(65);
-		while(true){
-			res[1] = random.nextInt(65);
-			if(res[1] != res[0])
-				break;
-		}
+		res[0] = (int)Double.parseDouble(drawFromFile("B1"));
+		res[1] = (int)Double.parseDouble(drawFromFile("B2"));
 		return res;
 	}
 	
-	public int[] drawHLA_DR(){
+	public int[] drawHLA_DR() throws NumberFormatException, FileNotFoundException{
 		int[] res = new int[2];
-		res[0] = random.nextInt(21);
-		while(true){
-			res[1] = random.nextInt(21);
-			if(res[1] != res[0])
-				break;
-		}
+		res[0] = (int)Double.parseDouble(drawFromFile("DR1"));
+		res[1] = (int)Double.parseDouble(drawFromFile("DR2"));
+		return res;
+	}
+	public int[] drawDonorHLA_B() throws NumberFormatException, FileNotFoundException{
+		int[] res = new int[2];
+		res[0] = (int)Double.parseDouble(drawFromFile("DB1"));
+		res[1] = (int)Double.parseDouble(drawFromFile("DB2"));
+		return res;
+	}
+	
+	public int[] drawDonorHLA_DR() throws NumberFormatException, FileNotFoundException{
+		int[] res = new int[2];
+		res[0] = (int)Double.parseDouble(drawFromFile("DDR1"));
+		res[1] = (int)Double.parseDouble(drawFromFile("DDR2"));
 		return res;
 	}
 
@@ -279,24 +260,25 @@ public class SaidmanPoolGenerator extends PoolGenerator {
 	 * Randomly rolls a patient-donor pair (possibly compatible or incompatible)
 	 * @param ID unique identifier for the vertex
 	 * @return a patient-donor pair KPDVertexPair
+	 * @throws FileNotFoundException 
 	 */
-	public VertexPair generatePair(int ID) {
+	public VertexPair generatePair(int ID) throws FileNotFoundException {
 
 		// Draw blood types for patient and donor, along with spousal details and probability of PositiveXM
 		BloodType bloodTypePatient = drawPatientBloodType();
 		BloodType bloodTypeDonor = drawDonorBloodType();
-		boolean isWifePatient = isPatientFemale() && isDonorSpouse();
-		double patientCPRA = generatePraIncompatibility(isWifePatient);
 		double eGFR = draweGFR();
 		double bmi = drawBMI();
-		double pweight = drawWeight();
-		double dweight = drawWeight();
+		double pweight = drawPatientWeight();
+		double dweight = drawDonorWeight();
 		boolean iaa = isAfricanAmerican();
 		boolean icu = isCigaretteUser();
 		boolean idm = isDonorMale();
 		boolean ipm = isPatientMale();
+		boolean isWifePatient = !ipm && isDonorSpouse();
+		double patientCPRA = generatePraIncompatibility(isWifePatient);
 		boolean ir = isRelated();
-		int age = drawPatientAge();
+		int age = drawDonorAge();
 		int sbp = drawSBP();
 		int[] pHLA_B = drawHLA_B();
 		int[] dHLA_B = drawHLA_B();
@@ -317,13 +299,15 @@ public class SaidmanPoolGenerator extends PoolGenerator {
 	 * Random rolls an altruistic donor (donor with no attached patient)
 	 * @param ID unique identifier for the vertex
 	 * @return altruistic donor vertex KPDVertexAltruist
+	 * @throws FileNotFoundException 
+	 * @throws NumberFormatException 
 	 */
-	public VertexAltruist generateAltruist(int ID) {
+	public VertexAltruist generateAltruist(int ID) throws NumberFormatException, FileNotFoundException {
 
 		// Draw blood type for the altruist
 		BloodType bloodTypeAltruist = drawDonorBloodType();
 
-		return new VertexAltruist(ID, bloodTypeAltruist, drawWeight(), isDonorMale(), drawHLA_B(), drawHLA_DR());
+		return new VertexAltruist(ID, bloodTypeAltruist, drawDonorWeight(), isDonorMale(), drawDonorHLA_B(), drawDonorHLA_DR(), drawDonorAge(), isAfricanAmerican(), drawSBP(), isCigaretteUser(), drawBMI(), draweGFR());
 	}
 
 
@@ -356,7 +340,13 @@ public class SaidmanPoolGenerator extends PoolGenerator {
 		// Generate enough incompatible and compatible patient-donor pair vertices
 		while(incompatiblePairs.size() < numPairs) {
 
-			VertexPair v = generatePair(currentVertexID++);
+			VertexPair v = null;
+			try {
+				v = generatePair(currentVertexID++);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			if(v.isCompatible()) {
 				compatiblePairs.add(v);  // we don't do anything with these
 				currentVertexID--;       // throw away compatible pair; reuse the ID
@@ -367,7 +357,16 @@ public class SaidmanPoolGenerator extends PoolGenerator {
 
 		// Generate altruistic donor vertices
 		while(altruists.size() < numAltruists) {
-			VertexAltruist altruist = generateAltruist(currentVertexID++);
+			VertexAltruist altruist = null;
+			try {
+				altruist = generateAltruist(currentVertexID++);
+			} catch (NumberFormatException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			altruists.add(altruist);
 		}
 

@@ -52,7 +52,7 @@ public class CycleGenerator {
 		if(addInfiniteTailUtility && (infiniteTailFailureProb <= 0.0 || infiniteTailFailureProb >= 1.0)) { throw new IllegalArgumentException("infiniteFailureProb must be in (0,1); your value=" + infiniteTailFailureProb); }
 		if(!usingFailureProbabilities && addInfiniteTailUtility) { throw new IllegalArgumentException("Infinite tail extension without failure probabilities is infinite; arguments don't make sense."); }
 
-		IOUtil.dPrintln(getClass().getSimpleName(), "Generating all (at-most) " + maxCycleSize + "-cycles and " + maxChainSize + "-chains ...");
+		//IOUtil.dPrintln(getClass().getSimpleName(), "Generating all (at-most) " + maxCycleSize + "-cycles and " + maxChainSize + "-chains ...");
 
 		if(maxCycleSize < 0 || maxChainSize < 0) {
 			throw new IllegalArgumentException("Maximum (cycle, chain) length must be nonnegative.  For infinite length, please use Integer.MAX_INT.  For zero length, please use 0.");
@@ -72,7 +72,7 @@ public class CycleGenerator {
 					));
 		}
 
-		IOUtil.dPrintln(getClass().getSimpleName(), "Generated " + generatedCycles.size() + " cycles and chains.");
+		//IOUtil.dPrintln(getClass().getSimpleName(), "Generated " + generatedCycles.size() + " cycles and chains.");
 		return generatedCycles;
 	}
 

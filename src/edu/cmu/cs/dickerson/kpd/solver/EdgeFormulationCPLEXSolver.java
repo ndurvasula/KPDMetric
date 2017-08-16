@@ -14,7 +14,7 @@ public class EdgeFormulationCPLEXSolver extends CPLEXSolver {
 
 	public Solution solve() throws SolverException {
 
-		IOUtil.dPrintln(getClass().getSimpleName(), "Solving cycle formulation IP.");
+		//IOUtil.dPrintln(getClass().getSimpleName(), "Solving cycle formulation IP.");
 
 		try {
 			super.initializeCPLEX();
