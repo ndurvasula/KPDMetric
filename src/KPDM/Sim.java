@@ -74,11 +74,9 @@ public class Sim {
 		int[] phlab = new int[2];
 		int[] phladr = new int[2];
 		
-		pw = Double.parseDouble(args[0]);
+		pcpra = Double.parseDouble(args[0]);
 		
-		pcpra = Double.parseDouble(args[1]);
-		
-		switch((int)Double.parseDouble(args[2])){
+		switch((int)Double.parseDouble(args[1])){
 		case 0: btp = BloodType.O;
 		break;
 		case 1: btp = BloodType.A;
@@ -89,7 +87,7 @@ public class Sim {
 		break;
 		}
 		
-		switch((int)Double.parseDouble(args[3])){
+		switch((int)Double.parseDouble(args[2])){
 		case 0: btd = BloodType.O;
 		break;
 		case 1: btd = BloodType.A;
@@ -100,35 +98,24 @@ public class Sim {
 		break;
 		}
 		
-		switch((int)Double.parseDouble(args[4])){
+		switch((int)Double.parseDouble(args[3])){
 		case 0: iwp = false;
 		break;
 		case 1: iwp = true;
 		break;
 		}
 		
-		switch((int)Double.parseDouble(args[5])){
+		switch((int)Double.parseDouble(args[4])){
 		case 0: ic = false;
 		break;
 		case 1: ic = true;
 		break;
 		}
 		
-		switch((int)Double.parseDouble(args[6])){
-		case 0: ipm = false;
-		break;
-		case 1: ipm = true;
-		break;
-		}
-		
-		for(int i = 0; i < 2; i++){
-			phlab[i] = (int)Double.parseDouble(args[7+i]);
-			phladr[i] = (int)Double.parseDouble(args[9+i]);
-		}
-		int pstart = (int)Double.parseDouble(args[11]);
-		int astart = (int)Double.parseDouble(args[12]);
-		int ep = (int)Double.parseDouble(args[13]);
-		int ea = (int)Double.parseDouble(args[14]);
+		int pstart = (int)Double.parseDouble(args[5]);
+		int astart = (int)Double.parseDouble(args[6]);
+		int ep = (int)Double.parseDouble(args[7]);
+		int ea = (int)Double.parseDouble(args[8]);
 
 		VertexPair s = new VertexPair(0, btp, btd, iwp, pcpra, ic, egfr, dbmi, pw, dw, iaa, icu, ipm, idm, ir, da, dsbp, dhlab, dhladr, phlab, phladr);
 		
