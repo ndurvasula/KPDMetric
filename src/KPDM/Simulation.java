@@ -60,23 +60,27 @@ public class Simulation {
 		boolean iwp = false;
 		double pcpra;
 		boolean ic = false;
-		double egfr;
-		double dbmi;
+		double egfr = 0;
+		double dbmi = 0;
 		double pw;
-		double dw;
+		double dw = 0;
 		boolean iaa = false;
 		boolean icu = false;
 		boolean ipm = false;
 		boolean idm = false;
 		boolean ir = false;
-		double da;
-		double dsbp;
+		double da = 0;
+		double dsbp = 0;
 		int[] dhlab = new int[2];
 		int[] dhladr = new int[2];
 		int[] phlab = new int[2];
 		int[] phladr = new int[2];
 		
-		switch((int)Double.parseDouble(args[0])){
+		pcpra = Double.parseDouble(args[0]);
+		
+		pw = Double.parseDouble(args[1]);
+		
+		switch((int)Double.parseDouble(args[2])){
 		case 0: btp = BloodType.O;
 		break;
 		case 1: btp = BloodType.A;
@@ -87,7 +91,7 @@ public class Simulation {
 		break;
 		}
 		
-		switch((int)Double.parseDouble(args[1])){
+		switch((int)Double.parseDouble(args[3])){
 		case 0: btd = BloodType.O;
 		break;
 		case 1: btd = BloodType.A;
@@ -98,72 +102,36 @@ public class Simulation {
 		break;
 		}
 		
-		switch((int)Double.parseDouble(args[2])){
+		switch((int)Double.parseDouble(args[4])){
 		case 0: iwp = false;
 		break;
 		case 1: iwp = true;
 		break;
 		}
 		
-		pcpra = Double.parseDouble(args[3]);
-		
-		switch((int)Double.parseDouble(args[4])){
+		switch((int)Double.parseDouble(args[5])){
 		case 0: ic = false;
 		break;
 		case 1: ic = true;
 		break;
 		}
 		
-		egfr = Double.parseDouble(args[5]);
-		
-		dbmi = Double.parseDouble(args[6]);
-		
-		pw = Double.parseDouble(args[7]);
-		
-		dw = Double.parseDouble(args[8]);
-		
-		switch((int)Double.parseDouble(args[9])){
-		case 0: iaa = false;
-		break;
-		case 1: iaa = true;
-		break;
-		}
-		
-		switch((int)Double.parseDouble(args[10])){
-		case 0: icu = false;
-		break;
-		case 1: icu = true;
-		break;
-		}
-		
-		switch((int)Double.parseDouble(args[11])){
+		switch((int)Double.parseDouble(args[6])){
 		case 0: ipm = false;
 		break;
 		case 1: ipm = true;
 		break;
 		}
 		
-		switch((int)Double.parseDouble(args[12])){
-		case 0: idm = false;
-		break;
-		case 1: idm = true;
-		break;
-		}
-		
-		
-		da = Double.parseDouble(args[13]);
-		
-		dsbp = Double.parseDouble(args[14]);
-		
 		for(int i = 0; i < 2; i++){
-			phlab[i] = (int)Double.parseDouble(args[15+i]);
-			phladr[i] = (int)Double.parseDouble(args[17+i]);
+			phlab[i] = (int)Double.parseDouble(args[7+i]);
+			phladr[i] = (int)Double.parseDouble(args[9+i]);
 		}
-		int traj = (int)Double.parseDouble(args[19]);
-		int pstart = (int)Double.parseDouble(args[20]);
-		int astart = (int)Double.parseDouble(args[21]);
-		int ep = (int)Double.parseDouble(args[22]);
-		int ea = (int)Double.parseDouble(args[23]);
+		int traj = (int)Double.parseDouble(args[11]);
+		int pstart = (int)Double.parseDouble(args[12]);
+		int astart = (int)Double.parseDouble(args[13]);
+		int ep = (int)Double.parseDouble(args[14]);
+		int ea = (int)Double.parseDouble(args[15]);
 
 		VertexPair s = new VertexPair(0, btp, btd, iwp, pcpra, ic, egfr, dbmi, pw, dw, iaa, icu, ipm, idm, ir, da, dsbp, dhlab, dhladr, phlab, phladr);
 		
@@ -254,6 +222,8 @@ public class Simulation {
 			int t = 0;
 
 			while (true) {
+				if(t == 365)
+					break;
 				boolean stop = false;
 				// Add new vertices to the pool
 				int pairs = m.draw().intValue();
@@ -384,16 +354,15 @@ public class Simulation {
 				// true);
 
 				try {
-					System.out.println("Starting the solver on iteration " + t);
 					// Solution optSolIP = optIPS.solve();
 					GreedyPackingSolver s = new GreedyPackingSolver(pool);
-					List<Cycle> reducedCycles = (new CycleGenerator(pool)).generateCyclesAndChains(3, 0, true);
+					List<Cycle> reducedCycles = (new CycleGenerator(pool)).generateCyclesAndChains(CYCLE_CAP, 0, true);
 					Solution sol = s.solve(1, new CyclesSampleChainsIPPacker(pool, reducedCycles, 100, CHAIN_CAP, true),
 							Double.MAX_VALUE);
 					for (Cycle c : sol.getMatching()) {
 						matches.add(c);
 					}
-					System.out.println("Finished the solver on iteration " + t);
+
 				} catch (SolverException e) {
 					e.printStackTrace();
 					System.exit(-1);
@@ -422,8 +391,10 @@ public class Simulation {
 		double sbp = 0;
 		double abm = 0;
 		double abo = 0;
-		double hlab = 0;
-		double hladr = 0;
+		double hlab1 = 0;
+		double hlab2 = 0;
+		double hladr1 = 0;
+		double hladr2 = 0;
 		double drwr = 0;
 		double time = 0;
 		for(int i = 0; i < trajectories; i++){
@@ -442,8 +413,14 @@ public class Simulation {
 				abm++;
 			if(!p.getBloodTypePatient().equals(a.getBloodTypeDonor()))
 				abo++;
-			hlab += p.getBMismatches(a);
-			hladr += p.getDRMismatches(a);
+			if(p.getPatientHLA_B()[0] == a.getHLA_B()[0])
+				hlab1++;
+			if(p.getPatientHLA_B()[1] == a.getHLA_B()[1])
+				hlab2++;
+			if(p.getPatientHLA_DR()[0] == a.getHLA_DR()[0])
+				hladr1++;
+			if(p.getPatientHLA_DR()[1] == a.getHLA_DR()[1])
+				hladr2++;
 			drwr += p.getDRWR(a);
 		}
 		age /= trajectories;
@@ -454,13 +431,15 @@ public class Simulation {
 		sbp /= trajectories;
 		abm /= trajectories;
 		abo /= trajectories;
-		hlab /= trajectories;
-		hladr /= trajectories;
+		hlab1 /= trajectories;
+		hlab2 /= trajectories;
+		hladr1 /= trajectories;
+		hladr2 /= trajectories;
 		drwr /= trajectories;
 		time /= trajectories;
 		//Returns to STDOUT all of the expected values, not in discrete form
 		//This allows for GP regression, and rounding to make it discrete can occur afterwords
-		System.out.println(age+" "+eGFR+" "+bmi+" "+iaa+" "+icu+" "+sbp+" "+abm+" "+abo+" "+hlab+" "+hladr+" "+drwr+" "+time);
+		System.out.println(age+" "+eGFR+" "+bmi+" "+iaa+" "+icu+" "+sbp+" "+abm+" "+abo+" "+hlab1+" "+hlab2+" "+hladr1+" "+hladr2+" "+drwr+" "+time);
 
 	}
 
