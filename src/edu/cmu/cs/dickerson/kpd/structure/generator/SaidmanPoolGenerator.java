@@ -128,7 +128,7 @@ public class SaidmanPoolGenerator extends PoolGenerator {
 	//.24 for cigarette, .11 for african american, GFR random between 78 to 136, SBP < 120 .533 120-139 .396 >=140 .71
 	public double draweGFR() {
 		double r = random.nextInt(59)+78;
-		return r;
+		return r/10;
 	}
 	
 	public double drawBMI() throws FileNotFoundException {
