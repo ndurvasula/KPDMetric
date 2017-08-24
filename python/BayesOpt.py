@@ -12,7 +12,7 @@ ALTS_0 = 10
 E_P = 15
 E_A = 1
 
-cacheIN = np.empty([0,6])
+cacheIN = np.empty([0,5])
 cacheOUT = np.empty([0,TRAJECTORIES,14])
 
 XL = []
@@ -29,6 +29,34 @@ for i in range(6):
 
 
 MD = []
+
+def fCacheEval(x=False):
+    print "Solving the function for the given value"
+    global cacheIN
+    global cacheOUT
+    global fi
+
+    if fi < 6 or fi == 11:
+        X = np.empty([1,6])
+    else:
+        X = np.empty([1,7])
+    Y = np.empty([1,1])
+
+    if x:
+        X[0] = np.append(cacheIN[-1],x)
+    else:
+        X[0] = cacheIN[-1]
+    valAvg = 0
+    for t in range(TRAJECTORIES):
+        if fi < 6 or fi == 11:
+            valAvg += cacheOUT[-1][t][fi]
+        elif fi >= 6 and fi < 10:
+            valAvg += (1 if x == cacheOUT[T][t][fi] else 0)
+        else:
+            valAvg += cacheOUT[T][t][fi]/x
+    valAvg /= TRAJECTORIES
+    Y[0] = valAvg
+    return (X, Y)
 
 def subCacheEval(x=False):
     global cacheIN
@@ -58,6 +86,7 @@ def subCacheEval(x=False):
     return (X, Y)
 
 def cacheEval():
+    print "Using cached values from previous calculations"
     global fi
     global XL
     global YL
@@ -79,15 +108,31 @@ def cacheEval():
 
 
     X_i = np.append(X_i, X_k)
-    Y_i = np,append(Y_i, Y_k)
+    Y_i = np.append(Y_i, Y_k)
     
+    xf = open("X"+str(fi),"wb")
+    yf = open("Y"+str(fi),"wb")
+
+    pickle.dump(X_i, xf)
+    pickle.dump(Y_i, yf)
+
+    xf.close()
+    yf.close()
 
 
-def f(X):
+def f(Xl):
     global fi
-    for i in range(TRAJECTORIES):
-        args = []
-        x = False
+    global cacheIN
+    global cacheOUT
+    global XL
+    global YL
+    X_i = XL[fi]
+    Y_i = YL[fi]
+    Y = np.empty([0,1])
+    for XI in range(len(Xl)):
+        X = Xl[XI]
+        xp = False
+    
         if fi < 6 or fi == 11:
             args = X
         elif fi >= 6 and f < 10:
@@ -96,12 +141,65 @@ def f(X):
         else:
             args = X[1:]
             x = X[0]
+        
+        cacheIN = np.append(cacheIN, [args], axis=0)
+        Yn = np.empty([TRAJECTORIES,14])
+        for i in range(TRAJECTORIES):
+            I = ["java","-jar","Simulation.jar"]
+            for j in args:
+                I.append(str(j))
+            I.append(str(PAIRS_0))
+            I.append(str(ALTS_0))
+            I.append(str(E_P))
+            I.append(str(E_A))
+            print "Running the simulator"
+            out = subprocess.check_output(I)
+            out.split(" ")
+            print "Finished"
+            for j in range(4):
+                out[j] = float(out[j])
+            for j in range(4,7):
+                out[j] = 1 if out[j]=='true' else 0
+            if out[7] == "O":
+                out[7] = 0
+            elif out[7] == "A":
+                out[7] = 1
+            elif out[7] == "B":
+                out[7] = 2
+            else:
+                out[7] = 3
+            for j in range(8,12):
+                out[j] = int(float(out[j]))
+            out[12] = float(out[12])
+            out[13] = float(out[13])
+            Yn[i] = out
+        cacheOUT= np.append(cacheOUT, [Yn], axis=0)
+        ci = open("cacheIN","wb")
+        co = open("cacheOUT","wb")
+        pickle.dump(cacheIN,ci)
+        pickle.dump(cacheOUT,co)
+        ci.close()
+        co.close()
+        
+        Xu, Yu = fCacheEval(x=xp)
+        
+        X_i = np.append(X_i, Xu)
+        Y_i = np.append(Y_i, Yu)
+        
+        xf = open("X"+str(fi),"wb")
+        yf = open("Y"+str(fi),"wb")
+
+        pickle.dump(X_i, xf)
+        pickle.dump(Y_i, yf)
+
+        xf.close()
+        yf.close()
+
+        Y = np.append(Y, Yu)
+    return Y
 
 
-
-
-    
-
+         
 complete_domain =[{'name': 'patientWeight', 'type': 'continuous', 'domain': (0,500)}, #0
                   {'name': 'PatientCPRA', 'type': 'continuous', 'domain': (0,1)}, #1
                   {'name': 'BloodTypePatient', 'type': 'discrete', 'domain': (0,1,2,3)}, #2
@@ -119,63 +217,41 @@ complete_range = ["Donor Age","Donor eGFR","Donor BMI","Donor systolic BP","Is t
 for fi in range(12): #feature index - between 0 and 11
     print "Starting Bayesian Optimization for feature: "+complete_range[fi]
     mixed_domain = complete_domain[1:6]
-    X_i = None
-    X_0 = None
-    Y_0 = None
-    if os.stat("cacheIN.txt").st_size != 0:
-        CI = open("cacheIN.txt","rb")
+    initCache = False
+
+    if os.stat("cacheIN").st_size != 0:
+        CI = open("cacheIN","rb")
         cacheIN = pickle.load(CI)
+        initCache = True
         CI.close()
-    if os.stat("cacheOUT.txt").st_size != 0:
-        CO = open("cacheOUT.txt","rb")
+    if os.stat("cacheOUT").st_size != 0:
+        CO = open("cacheOUT","rb")
         cacheOUT = pickle.load(CO)
         CO.close()
 
-    #All features are discrete, so samples can be reused
     if fi >= 6 and fi < 10:
         mixed_domain.append(complete_domain[fi+6])
-        X_i = np.empty([0,7])
-        X_0 = np.empty([len(cacheIN),7])
-        Y_0 = np.empty([len(cacheIN),0])
-        for i in range(len(cacheIN)):
-            for j in mixed_domain[-1]["domain"]:
-                x = np.append(cacheIN[i], j)
-                y = np.array([1 if cacheOUT[i][fi] == j else 0])
-
-                X_0[i] = x
-                Y_0[y] = y
 
     elif fi == 10:
-        X_i = np.empty([0,7])
-        X_0 = np.empty([len(cacheIN),7])
-        Y_0 = np.empty([len(cacheIN),0])
         md = complete_domain[0]
         for k in mixed_domain:
             md.append(k)
-        for i in range(len(cacheIN)):
-            for j in range(md[0]["domain"][0],md[0]["domain"][1]): #Add every integer number to the cross section
-                x = np.append(cacheIN[i], j)
-                y = np.array([cacheOUT[i][fi]/j])
+        mixed_domain = md
 
-                X_0[i] = x
-                Y_0[i] = y
+    MD.append(mixed_domain)
+    if initCache:
+        cacheEval()
 
+    if not(np.array_equal(XL[fi],np.empty([0,6])) or np.array_equal(XL[fi],np.empty([0,7]))):
+        print "Using computed intial values from cache"
+        X_0 = XL[fi]
+        Y_0 = YL[fi]
     else:
-        X_i = np.empty([0,6])
-        X_0 = np.empty([len(cacheIN),6])
-        Y_0 = np.empty([len(cacheIN),0])
-        for i in range(len(cacheIN)):
-            x = cacheIN[i]
-            y = cacheOUT[i][fi]
+        print "No available cached values"
+        X_0 = None
+        Y_0 = None
 
-            X_0[i] = x
-            Y_0[i] = y
-
-    X_i = np.append(X_i, X_0, axis=0)
-    fxi = open("Feature_"+str(fi)+"_inputs.txt","wb")
-    pickle.dump(X_i)
-    fxi.close()
     myBopt = BayesianOptimization(f=f, domain=mixed_domain, acquisition_type='LCB', X=X_0, Y=Y_0, num_cores=8)
-    myBopt.run_optimization(max_iter=100, eps=.1) #Continue optimization until maximized normalized standard deviation is 0.1
+    myBopt.run_optimization(max_iter=100, eps=.15) #Continue optimization until maximized normalized standard deviation is 0.1
     myBopt.plot_acquisition()
 
