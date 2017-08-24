@@ -1,5 +1,6 @@
 package KPDM;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -52,7 +53,7 @@ public class Sim {
 	}
 	
 	//Receive command line arguments from python BayesOpt client and run the simulation
-	public static void main(String[] args){
+	public static void main(String[] args) throws NumberFormatException, FileNotFoundException{
 		BloodType btp = null;
 		BloodType btd = null;
 		boolean iwp = false;
@@ -60,7 +61,7 @@ public class Sim {
 		boolean ic = false;
 		double egfr = 0;
 		double dbmi = 0;
-		double pw;
+		double pw = 0;
 		double dw = 0;
 		boolean iaa = false;
 		boolean icu = false;
@@ -173,7 +174,7 @@ public class Sim {
 		return ret;
 	}
 
-	public void run() {
+	public void run() throws NumberFormatException, FileNotFoundException {
 		long startTime = System.currentTimeMillis();
 		
 
@@ -206,7 +207,8 @@ public class Sim {
 
 		while (true) {
 			if(t == 365){
-				System.out.println("DNM");
+				VertexAltruist donor = ((SaidmanPoolGenerator)poolGen).generateAltruist(0);
+				System.out.println(donor.getDonorAge()+" "+donor.geteGFR()+" "+donor.getDonorBMI()+" "+donor.getDonorSBP()+" "+donor.isAfricanAmerican()+" "+donor.isCigaretteUser()+" "+donor.isMale()+" "+donor.getBloodTypeDonor().toString()+" "+donor.getHLA_B()[0]+" "+donor.getHLA_B()[1]+" "+donor.getHLA_DR()[0]+" "+donor.getHLA_DR()[1]+" "+donor.getWeight()+" "+t*5);
 				break;
 			}
 			boolean stop = false;
