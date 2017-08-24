@@ -17,67 +17,70 @@ cacheOUT = np.empty([0,TRAJECTORIES,14])
 
 XL = []
 for i in range(6):
+    XL.append(np.empty([0,5]))
+XL.append(np.empty([0,6]))
+XL.append(np.empty([0,5]))
+for i in range(5):
     XL.append(np.empty([0,6]))
-for i in range(4):
-    XL.append(np.empty([0,7]))
-for i in range(2):
-    XL.append(np.empty([0,6]))
+XL.append(np.empty([0,5]))
 
 YL = []
-for i in range(6):
+for i in range(14):
     YL.append(np.empty([0,1]))
 
 
 MD = []
+for i in range(14):
+    MD.append(None)
 
-def fCacheEval(x=False):
+def fCacheEval(x=None):
     print "Solving the function for the given value"
     global cacheIN
     global cacheOUT
     global fi
 
-    if fi < 6 or fi == 11:
-        X = np.empty([1,6])
+    if fi < 6 or fi == 13 or fi == 7:
+        X = np.empty([1,5])
     else:
-        X = np.empty([1,7])
+        X = np.empty([1,6])
     Y = np.empty([1,1])
 
-    if x:
+    if x != None and fi != 7:
         X[0] = np.append(cacheIN[-1],x)
     else:
         X[0] = cacheIN[-1]
     valAvg = 0
     for t in range(TRAJECTORIES):
-        if fi < 6 or fi == 11:
+        if fi < 6 or fi == 13:
             valAvg += cacheOUT[-1][t][fi]
-        elif fi >= 6 and fi < 10:
-            valAvg += (1 if x == cacheOUT[T][t][fi] else 0)
+        elif fi >= 6 and fi < 12:
+            valAvg += (1 if x == cacheOUT[-1][t][fi] else 0)
         else:
             valAvg += cacheOUT[T][t][fi]/x
     valAvg /= TRAJECTORIES
     Y[0] = valAvg
     return (X, Y)
 
-def subCacheEval(x=False):
+def subCacheEval(x=None):
     global cacheIN
     global cacheOUT
     global fi
-
-    if fi < 6 or fi == 11:
-        X = np.empty([len(cacheIN),6])
+    print "x="+str(x)
+    if fi < 6 or fi == 13 or fi == 7:
+        X = np.empty([len(cacheIN),5])
     else:
-        X = np.empty([len(cacheIN),7])
+        X = np.empty([len(cacheIN),6])
     Y = np.empty([len(cacheIN),1])
     for T in range(len(cacheIN)):
-        if x:
+        if x != None and fi != 7:
             X[T] = np.append(cacheIN[T],x)
         else:
             X[T] = cacheIN[T]
         valAvg = 0
         for t in range(TRAJECTORIES):
-            if fi < 6 or fi == 11:
+            if fi < 6 or fi == 13:
                 valAvg += cacheOUT[T][t][fi]
-            elif fi >= 6 and fi < 10:
+            elif fi >= 6 and fi < 12:
                 valAvg += (1 if x == cacheOUT[T][t][fi] else 0)
             else:
                 valAvg += cacheOUT[T][t][fi]/x
@@ -95,20 +98,26 @@ def cacheEval():
     Y_i = YL[fi]
     md = MD[fi]
 
-    if fi < 6 or fi == 11:
+    if fi < 6 or fi == 13:
         X_k, Y_k = subCacheEval()
-
-    elif fi >= 6 and fi <10:
-        for l in md[fi]["domain"]:
+        X_i = np.append(X_i, X_k, axis=0)
+        Y_i = np.append(Y_i, Y_k, axis=0)
+    elif fi == 7:
+        for l in md[1]["domain"]:
             X_k, Y_k = subCacheEval(x=l)
+            X_i = np.append(X_i, X_k, axis=0)
+            Y_i = np.append(Y_i, Y_k, axis=0)
+    elif fi >= 6 and fi < 12:
+        for l in md[-1]["domain"]:
+            X_k, Y_k = subCacheEval(x=l)
+            X_i = np.append(X_i, X_k, axis=0)
+            Y_i = np.append(Y_i, Y_k, axis=0)
             
     else:
         for l in range(md[0]["domain"][0],md[0]["domain"][1]):
             X_k, Y_k = subCacheEval(x=l)
-
-
-    X_i = np.append(X_i, X_k)
-    Y_i = np.append(Y_i, Y_k)
+            X_i = np.append(X_i, X_k, axis=0)
+            Y_i = np.append(Y_i, Y_k, axis=0)
     
     xf = open("X"+str(fi),"wb")
     yf = open("Y"+str(fi),"wb")
@@ -118,6 +127,9 @@ def cacheEval():
 
     xf.close()
     yf.close()
+
+    XL[fi] = X_i
+    YL[fi] = Y_i
 
 
 def f(Xl):
@@ -131,16 +143,16 @@ def f(Xl):
     Y = np.empty([0,1])
     for XI in range(len(Xl)):
         X = Xl[XI]
-        xp = False
+        xp = None
     
-        if fi < 6 or fi == 11:
+        if fi < 6 or fi == 13 or fi == 7:
             args = X
-        elif fi >= 6 and f < 10:
+        elif fi >= 6 and f < 12:
             args = X[:-1]
-            x = X[-1]
+            xp = X[-1]
         else:
             args = X[1:]
-            x = X[0]
+            xp = X[0]
         
         cacheIN = np.append(cacheIN, [args], axis=0)
         Yn = np.empty([TRAJECTORIES,14])
@@ -154,7 +166,7 @@ def f(Xl):
             I.append(str(E_A))
             print "Running the simulator"
             out = subprocess.check_output(I)
-            out.split(" ")
+            out = out.split(" ")
             print "Finished"
             for j in range(4):
                 out[j] = float(out[j])
@@ -183,8 +195,8 @@ def f(Xl):
         
         Xu, Yu = fCacheEval(x=xp)
         
-        X_i = np.append(X_i, Xu)
-        Y_i = np.append(Y_i, Yu)
+        X_i = np.append(X_i, Xu, axis=0)
+        Y_i = np.append(Y_i, Yu, axis=0)
         
         xf = open("X"+str(fi),"wb")
         yf = open("Y"+str(fi),"wb")
@@ -194,6 +206,9 @@ def f(Xl):
 
         xf.close()
         yf.close()
+
+        XL[fi] = X_i
+        YL[fi] = Y_i
 
         Y = np.append(Y, Yu)
     return Y
@@ -214,7 +229,7 @@ complete_domain =[{'name': 'patientWeight', 'type': 'continuous', 'domain': (0,5
 
 complete_range = ["Donor Age","Donor eGFR","Donor BMI","Donor systolic BP","Is the donor African American?","Is the donor a cigarette user?","Are both donor and patient male?","Is the donor ABO compatible with the patient?","HLAB1 mismatch?","HLAB2 mismatch?","HLADR1 mismatch?","HLADR2 mismatch?","Donor to patient weight ratio","Match time"]
 
-for fi in range(12): #feature index - between 0 and 11
+for fi in range(14): #feature index - between 0 and 14
     print "Starting Bayesian Optimization for feature: "+complete_range[fi]
     mixed_domain = complete_domain[1:6]
     initCache = False
@@ -229,20 +244,21 @@ for fi in range(12): #feature index - between 0 and 11
         cacheOUT = pickle.load(CO)
         CO.close()
 
-    if fi >= 6 and fi < 10:
-        mixed_domain.append(complete_domain[fi+6])
-
-    elif fi == 10:
-        md = complete_domain[0]
+    if fi == 6:
+        mixed_domain.append(complete_domain[fi])
+    elif fi > 7 and fi < 12:
+        mixed_domain.append(complete_domain[fi-1])
+    elif fi == 12:
+        md = [complete_domain[0]]
         for k in mixed_domain:
             md.append(k)
         mixed_domain = md
 
-    MD.append(mixed_domain)
+    MD[fi] = mixed_domain
     if initCache:
         cacheEval()
 
-    if not(np.array_equal(XL[fi],np.empty([0,6])) or np.array_equal(XL[fi],np.empty([0,7]))):
+    if not(np.array_equal(XL[fi],np.empty([0,5])) or np.array_equal(XL[fi],np.empty([0,6]))):
         print "Using computed intial values from cache"
         X_0 = XL[fi]
         Y_0 = YL[fi]
@@ -252,6 +268,6 @@ for fi in range(12): #feature index - between 0 and 11
         Y_0 = None
 
     myBopt = BayesianOptimization(f=f, domain=mixed_domain, acquisition_type='LCB', X=X_0, Y=Y_0, num_cores=8)
-    myBopt.run_optimization(max_iter=100, eps=.15) #Continue optimization until maximized normalized standard deviation is 0.1
-    myBopt.plot_acquisition()
+    myBopt.run_optimization(max_iter=100, eps=.15, evaluations_file="E"+str(fi)+".txt", models_file="M"+str(fi)+".txt") #Continue optimization until maximized normalized standard deviation is 0.1
+
 
