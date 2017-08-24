@@ -34,12 +34,20 @@ public class SaidmanPoolGenerator extends PoolGenerator {
 
 	protected double Pr_SPOUSAL_DONOR = 0.4897;
 
-	protected double Pr_LOW_PRA = 0.7019;
+	/*protected double Pr_LOW_PRA = 0.7019;
 	protected double Pr_MED_PRA = 0.2;
 
 	protected double Pr_LOW_PRA_INCOMPATIBILITY = 0.05;
 	protected double Pr_MED_PRA_INCOMPATIBILITY = 0.45;
-	protected double Pr_HIGH_PRA_INCOMPATIBILITY = 0.90;
+	protected double Pr_HIGH_PRA_INCOMPATIBILITY = 0.90;*/
+	
+	protected double Pr_LOW_PRA = 0.216;  // 0.007 + 0.001 + 0.016 + 0.192 = 0.216
+	protected double Pr_MED_PRA = 0.16;   // 0.018 + 0.001 + 0.025 + 0.116 = 0.16
+	// Pr_HIGH_PRA = 1.0 - 0.216 - 0.16 = 0.624
+	
+	protected double Pr_LOW_PRA_INCOMPATIBILITY = 0.50;
+	protected double Pr_MED_PRA_INCOMPATIBILITY = 0.80;
+	protected double Pr_HIGH_PRA_INCOMPATIBILITY = 0.98;
 
 	protected double Pr_SPOUSAL_PRA_COMPATIBILITY = 0.75;
 	
