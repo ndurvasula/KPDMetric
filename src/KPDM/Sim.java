@@ -31,13 +31,13 @@ import edu.cmu.cs.dickerson.kpd.structure.generator.SparseUNOSSaidmanPoolGenerat
 import edu.cmu.cs.dickerson.kpd.structure.types.BloodType;
 
 public class Sim {
-	// Probabilities generated based on a match frequency of 1 day
+	// Probabilities generated based on a match frequency of 1 week
 	static final int CHAIN_CAP = 4;
 	static final int CYCLE_CAP = 3;
 	static int EXPECTED_PAIRS = 15;
 	static int EXPECTED_ALTRUISTS = 1;
-	static final double DEATH = 0.000580725433182381168050643691;
-	static final double PATIENCE = 0.02284;
+	static final double DEATH = 0.00406912;
+	static final double PATIENCE = 0.159;
 	static final double RENEGE = .5;
 
 	VertexPair subject;
@@ -206,9 +206,9 @@ public class Sim {
 		int t = 0;
 
 		while (true) {
-			if(t == 365){
+			if(t == 260){
 				VertexAltruist donor = ((SaidmanPoolGenerator)poolGen).generateAltruist(0);
-				System.out.println(donor.getDonorAge()+" "+donor.geteGFR()+" "+donor.getDonorBMI()+" "+donor.getDonorSBP()+" "+donor.isAfricanAmerican()+" "+donor.isCigaretteUser()+" "+donor.isMale()+" "+donor.getBloodTypeDonor().toString()+" "+donor.getHLA_B()[0]+" "+donor.getHLA_B()[1]+" "+donor.getHLA_DR()[0]+" "+donor.getHLA_DR()[1]+" "+donor.getWeight()+" "+t*5);
+				System.out.println(donor.getDonorAge()+" "+donor.geteGFR()+" "+donor.getDonorBMI()+" "+donor.getDonorSBP()+" "+donor.isAfricanAmerican()+" "+donor.isCigaretteUser()+" "+donor.isMale()+" "+donor.getBloodTypeDonor().toString()+" "+donor.getHLA_B()[0]+" "+donor.getHLA_B()[1]+" "+donor.getHLA_DR()[0]+" "+donor.getHLA_DR()[1]+" "+donor.getWeight()+" "+t);
 				break;
 			}
 			boolean stop = false;
