@@ -6,6 +6,8 @@ print "Importing GPy"
 import GPy
 print "Importing random"
 import random
+print "Importing subprocess"
+import subprocess
 
 TRAJECTORIES = 32
 PAIRS_0 = 250
@@ -56,15 +58,38 @@ for a in range(4):
         print "Added model to superstructure"
     GP.append(temp)
 print "Completed superstructure"
+res = np.empty([4,4,4,5,4])
 for btp in range(4):
     for btd in range(4):
         jargs = [btp,btd,0,0]
+        if jargs == [1,3,0,0]:
+            TRAJECTORIES = 64
+        if jargs == [2,1,0,0]:
+            TRAJECTORIES = 128
+        elif jargs == [3,3,0,0]:
+            TRAJECTORIES = 128
+        else:
+            TRAJECTORIES = 32
         for t in range(4):
             for i in range(5):
                 tcpra = random.random() * .25 + .25*t
                 print "Trial number",i+1,"for args",jargs,"and CPRA zone",t+1
+                print TRAJECTORIES,"trajectories"
+                print "Test CPRA:",tcpra
                 m = GP[btp][btd]
-                print "Predicted:",m.predict([[tcpra]])
+                x = np.empty([1,1])
+                x[0,0] = tcpra
+                pred = m.predict(x)[0][0][0]
+                print "Predicted:", pred
+                true = f(x)[0][0]
+                print "Test CPRA:",tcpra
+                print "Predicted:", pred
+                print "True value:", true
+                print "Residual:",pred-true
+                res[btp,btd,t,i] = np.array([tcpra,pred,true,pred-true])
+                pickle.dump(res,open("Results.bin","wb"))
+                print "Updated results"
+
             
 
 
