@@ -62,16 +62,8 @@ for BTP in range(4):
         X = np.empty([0,1])
         Y = np.empty([0,1])
         jargs = [BTP,BTD,0,0]
-        if jargs == [1,3,0,0]:
-            TRAJECTORIES = 64
-        if jargs == [2,1,0,0]:
-            TRAJECTORIES = 128
-        elif jargs == [3,3,0,0]:
-            TRAJECTORIES = 128
-        else:
-            TRAJECTORIES = 32
         print "Bayesian optimization for master features "+str(jargs)
-        myBopt = BayesianOptimization(f=f, domain=dom, acquisition_type='LCB', num_cores=8)
+        myBopt = BayesianOptimization(f=f, domain=dom, acquisition_type='EI_MCMC', model_type='GP_MCMC', num_cores=8)
         myBopt.run_optimization(max_iter=maxi, eps=0, evaluations_file="E"+l2f(jargs)+".txt", models_file="M"+l2f(jargs)+".txt")
         myBopt.plot_acquisition("Plot"+l2f(jargs)+".png")
 
